@@ -1,0 +1,60 @@
+##############################################################################
+# Copyright (c) 2016-2017 HUAWEI TECHNOLOGIES CO.,LTD and others.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Apache License, Version 2.0
+# which accompanies this distribution, and is available at
+# http://www.apache.org/licenses/LICENSE-2.0
+##############################################################################
+---
+openo_net:
+  openo_vm_ip: 192.168.57.50
+  openo_vm_mask: 255.255.255.0
+  openo_external_gw: 192.168.57.250
+  openo_external_cidr: 192.168.57.0/24
+
+openo_docker_net:
+  common_services_auth_ip: 192.168.57.51
+  common_services_drivermanager_ip: 192.168.57.52
+  common_services_extsys_ip: 192.168.57.53
+  common_services_msb_ip: 192.168.57.54
+  common_services_protocolstack_ip: 192.168.57.55
+  common_services_wso2ext_ip: 192.168.57.56
+  common_tosca_catalog_ip: 192.168.57.57
+  common_tosca_inventory_ip: 192.168.57.58
+  common_tosca_modeldesigner_ip: 192.168.57.59
+  gso_service_gateway_ip: 192.168.57.60
+  gso_service_manager_ip: 192.168.57.61
+  nfvo_dac_ip: 192.168.57.62
+  nfvo_driver_sdnc_zte_ip: 192.168.57.63
+  nfvo_driver_vim_ip: 192.168.57.64
+  nfvo_driver_vnfm_huawei_ip: 192.168.57.65
+  nfvo_driver_vnfm_juju_ip: 192.168.57.66
+  nfvo_driver_vnfm_zte_ip: 192.168.57.67
+  nfvo_lcm_ip: 192.168.57.68
+  nfvo_resmanagement_ip: 192.168.57.69
+  nfvo_umc_ip: 192.168.57.70
+  sdno_driver_huawei_l3vpn_ip: 192.168.57.71
+  sdno_driver_huawei_openstack_ip: 192.168.57.72
+  sdno_driver_huawei_overlay_ip: 192.168.57.73
+  sdno_driver_huawei_servicechain_ip: 192.168.57.74
+  sdno_driver_zte_sptn_ip: 192.168.57.75
+  sdno_service_brs_ip: 192.168.57.76
+  sdno_service_ipsec_ip: 192.168.57.77
+  sdno_service_l2vpn_ip: 192.168.57.78
+  sdno_service_l3vpn_ip: 192.168.57.79
+  sdno_service_mss_ip: 192.168.57.80
+  sdno_service_nslcm_ip: 192.168.57.81
+  sdno_service_overlayvpn_ip: 192.168.57.82
+  sdno_service_servicechain_ip: 192.168.57.83
+  sdno_service_vpc_ip: 192.168.57.84
+  sdno_service_vxlan_ip: 192.168.57.85
+  common_tosca_aria_ip: 192.168.57.86
+  sdno_driver_ct_te_ip: 192.168.57.87
+  sdno_monitoring_ip: 192.168.57.88
+  sdno_vsitemgr_ip: 192.168.57.89
+  gso_gui_portal_ip: 192.168.57.90
+
+juju_net:
+  juju_net_cidr: 12.1.1.0/24
+  juju_net_gw: 12.1.1.1
