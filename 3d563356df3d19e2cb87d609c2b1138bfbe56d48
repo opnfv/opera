@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ac10518_925f3941",
+        "filename": "juju/adapter.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5269
+      },
+      "writtenOn": "2017-01-13T17:38:20Z",
+      "side": 1,
+      "message": "As this is a brand new file created in 2017, replace 2016 by 2017 for all impacted files.\nFor files created in 2016, replace 2016 by 2016-2017",
+      "range": {
+        "startLine": 3,
+        "startChar": 16,
+        "endLine": 3,
+        "endChar": 20
+      },
+      "revId": "3d563356df3d19e2cb87d609c2b1138bfbe56d48",
+      "serverId": "bbac25d2-bf60-4904-9ba8-a72fc000d6c5",
+      "unresolved": false
+    }
+  ]
+}
