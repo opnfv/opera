@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1acb0d3e_ae727747",
+        "filename": "project.config",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 254
+      },
+      "writtenOn": "2017-01-30T16:33:36Z",
+      "side": 1,
+      "message": "I\u0027m not sure if this permission should be given to anyone who accepted CLA. Only the project committers have +2/-2 rights.",
+      "range": {
+        "startLine": 4,
+        "startChar": 1,
+        "endLine": 4,
+        "endChar": 59
+      },
+      "revId": "ad6da9205de62987cc9ef08ad5a769f73473ff28",
+      "serverId": "bbac25d2-bf60-4904-9ba8-a72fc000d6c5",
+      "unresolved": false
+    }
+  ]
+}
