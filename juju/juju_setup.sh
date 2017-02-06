@@ -79,6 +79,10 @@ function juju_prepare()
                                            --remote-ip-prefix 0.0.0.0/0 juju-default
     fi
 
+    if [ ! -f ~/.ssh/id_rsa.pub ]; then
+        ssh-keygen -q -t rsa -f ~/.ssh/id_rsa -N ""
+    fi
+
     openstack keypair list | grep jump-key || openstack keypair create --public-key ~/.ssh/id_rsa.pub jump-key
 
     openstack flavor show m1.tiny   || openstack flavor create --ram 512 --disk 5 --vcpus 1 --public m1.tiny
