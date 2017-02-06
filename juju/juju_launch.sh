@@ -24,11 +24,19 @@ function launch_juju_vm()
                   --key-name jump-key --security-group juju-default juju-metadata-vm
     fi
 
+    count=300
     set +x
-    until [[ $(nova list | grep juju-metadata-vm | grep ACTIVE) ]]
-    do
-        sleep 1
-    done
+    while
+        state1=$(nova list | grep juju-client-vm | awk '{print $6}')
+        state2=$(nova list | grep juju-metadata-vm | awk '{print $6}')
+        if [[ $state1 == "ERROR" || $state2 == "ERROR" || $count == 0 ]]; then
+            log_error "launch juju vm error"
+            exit 1
+        fi
+        let count-=1
+        sleep 2
+        [[ $state1 != "ACTIVE" || $state2 != "ACTIVE" ]]
+    do :;done
     set -x
 
     if [ ! $(nova list | grep juju-client-vm | awk '{print $14}') ]; then
@@ -108,7 +116,7 @@ function juju_client_prepare()
         openstack:
             auth-type: userpass
             password: $OS_PASSWORD
-            tenant-name: $OS_TENANT_NAME
+            tenant-name: $OS_PROJECT_NAME
             username: $OS_USERNAME' > os-creds.yaml"
 
     # credential uses keystone url V3

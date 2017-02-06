@@ -19,7 +19,7 @@ function generate_compass_openrc()
     PUBLIC_VIP=$(eval "$exec_command $cmd")
 
     echo -e "export OS_PASSWORD=console \n\
-export OS_TENANT_NAME=admin \n\
+export OS_PROJECT_NAME=admin \n\
 export OS_AUTH_URL=http://$PUBLIC_VIP:35357/v2.0 \n\
 export OS_USERNAME=admin \n\
 export OS_VOLUME_API_VERSION=2 \n\
