@@ -22,6 +22,40 @@
       "revId": "647fa223b287a41a4535ddcc660e0bde1e0f493a",
       "serverId": "bbac25d2-bf60-4904-9ba8-a72fc000d6c5",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1acb0d3e_c319d123",
+        "filename": "vims/opera_vims.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 335
+      },
+      "writtenOn": "2017-02-07T07:36:35Z",
+      "side": 1,
+      "message": "if it is a reference to AAA, it does not make sens :)\n\nit could be OperaImsVnf",
+      "revId": "647fa223b287a41a4535ddcc660e0bde1e0f493a",
+      "serverId": "bbac25d2-bf60-4904-9ba8-a72fc000d6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1acb0d3e_83d3c937",
+        "filename": "vims/opera_vims.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 335
+      },
+      "writtenOn": "2017-02-07T07:36:35Z",
+      "side": 1,
+      "message": "log not adapted...we are spaeaking of a vIMS deployed with Opera not a free radius server ...",
+      "revId": "647fa223b287a41a4535ddcc660e0bde1e0f493a",
+      "serverId": "bbac25d2-bf60-4904-9ba8-a72fc000d6c5",
+      "unresolved": false
     }
   ]
 }
