@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1acb0d3e_c8fb2e46",
+        "filename": "vims/opera_vims.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5959
+      },
+      "writtenOn": "2017-02-07T01:42:35Z",
+      "side": 1,
+      "message": "Is the VNF called BBB?",
+      "range": {
+        "startLine": 19,
+        "startChar": 6,
+        "endLine": 19,
+        "endChar": 12
+      },
+      "revId": "647fa223b287a41a4535ddcc660e0bde1e0f493a",
+      "serverId": "bbac25d2-bf60-4904-9ba8-a72fc000d6c5",
+      "unresolved": false
+    }
+  ]
+}
