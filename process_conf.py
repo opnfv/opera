@@ -18,6 +18,7 @@ def generate_vm_conf(vm_config, scripts_dir):
     """generate opera/work/scripts_dir/openo-vm.conf"""
     print vm_config["openo"]["cpu"]
     with open(scripts_dir + "/openo-vm.conf", "w") as fd:
+        fd.write("OPENO_TAG=" + str(vm_config["openo"]["tag"]) + "\n")
         fd.write("OPENO_VIRT_CPUS=" + str(vm_config["openo"]["cpu"]) + "\n")
         fd.write("OPENO_VIRT_MEM=" + str(vm_config["openo"]["memory"]) + "\n")
         fd.write("OPENO_VIRT_DISK=" + str(vm_config["openo"]["disk"]) + "\n")

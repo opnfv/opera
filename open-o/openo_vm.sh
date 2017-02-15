@@ -25,7 +25,8 @@ function openo_download_iso()
 function openo_docker_prepare()
 {
     cp $OPENO_DIR/openo_docker.sh ${OPENO_VM_DIR}/
-    sed -i -e "s#OPENO_EXTERNAL_CIDR#$OPENO_EXTERNAL_CIDR#g" \
+    sed -i -e "s#REPLACE_OPENO_TAG#$OPENO_TAG#g" \
+           -e "s#OPENO_EXTERNAL_CIDR#$OPENO_EXTERNAL_CIDR#g" \
            -e "s/OPENO_EXTERNAL_GW/$OPENO_EXTERNAL_GW/g" \
            -e "s/COMMON_SERVICES_AUTH_IP/$COMMON_SERVICES_AUTH_IP/g" \
            -e "s/COMMON_SERVICES_DRIVERMANAGER_IP/$COMMON_SERVICES_DRIVERMANAGER_IP/g" \

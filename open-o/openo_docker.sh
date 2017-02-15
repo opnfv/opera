@@ -9,163 +9,163 @@
 ##############################################################################
 function docker_pull()
 {
-    until docker pull openoint/sdno-driver-ct-te
+    until docker pull openoint/sdno-driver-ct-te:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/common-services-auth
+    until docker pull openoint/common-services-auth:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/common-services-drivermanager
+    until docker pull openoint/common-services-drivermanager:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/common-services-extsys
+    until docker pull openoint/common-services-extsys:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/common-services-msb
+    until docker pull openoint/common-services-msb:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/common-services-protocolstack
+    until docker pull openoint/common-services-protocolstack:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/common-services-wso2ext
+    until docker pull openoint/common-services-wso2ext:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/common-tosca-catalog
+    until docker pull openoint/common-tosca-catalog:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/common-tosca-inventory
+    until docker pull openoint/common-tosca-inventory:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/common-tosca-modeldesigner
+    until docker pull openoint/common-tosca-modeldesigner:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/gso-service-gateway
+    until docker pull openoint/gso-service-gateway:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/gso-service-manager
+    until docker pull openoint/gso-service-manager:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/nfvo-dac
+    until docker pull openoint/nfvo-dac:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/nfvo-driver-sdnc-zte
+    until docker pull openoint/nfvo-driver-sdnc-zte:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/nfvo-driver-vim
+    until docker pull openoint/nfvo-driver-vim:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/nfvo-driver-vnfm-huawei
+    until docker pull openoint/nfvo-driver-vnfm-huawei:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/nfvo-driver-vnfm-juju
+    until docker pull openoint/nfvo-driver-vnfm-juju:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/nfvo-driver-vnfm-zte
+    until docker pull openoint/nfvo-driver-vnfm-zte:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/nfvo-lcm
+    until docker pull openoint/nfvo-lcm:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/nfvo-resmanagement
+    until docker pull openoint/nfvo-resmanagement:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/nfvo-umc
+    until docker pull openoint/nfvo-umc:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-driver-huawei-l3vpn
+    until docker pull openoint/sdno-driver-huawei-l3vpn:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-driver-huawei-openstack
+    until docker pull openoint/sdno-driver-huawei-openstack:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-driver-huawei-overlay
+    until docker pull openoint/sdno-driver-huawei-overlay:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-driver-huawei-servicechain
+    until docker pull openoint/sdno-driver-huawei-servicechain:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-driver-zte-sptn
+    until docker pull openoint/sdno-driver-zte-sptn:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-service-brs
+    until docker pull openoint/sdno-service-brs:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-service-ipsec
+    until docker pull openoint/sdno-service-ipsec:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-service-l2vpn
+    until docker pull openoint/sdno-service-l2vpn:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-service-l3vpn
+    until docker pull openoint/sdno-service-l3vpn:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-service-mss
+    until docker pull openoint/sdno-service-mss:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-service-nslcm
+    until docker pull openoint/sdno-service-nslcm:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-service-overlayvpn
+    until docker pull openoint/sdno-service-overlayvpn:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-service-servicechain
+    until docker pull openoint/sdno-service-servicechain:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-service-vpc
+    until docker pull openoint/sdno-service-vpc:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-service-vxlan
+    until docker pull openoint/sdno-service-vxlan:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/common-tosca-aria
+    until docker pull openoint/common-tosca-aria:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-monitoring
+    until docker pull openoint/sdno-monitoring:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-vsitemgr
+    until docker pull openoint/sdno-vsitemgr:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
-    until docker pull openoint/gso-gui-portal
+    until docker pull openoint/gso-gui-portal:REPLACE_OPENO_TAG
     do
         echo "Try again"
     done
