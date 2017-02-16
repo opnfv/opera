@@ -17,11 +17,19 @@ function launch_juju_vm()
     if [[ ! $(nova list | grep juju-client-vm) ]]; then
         nova boot --flavor m1.small --image Xenial_x86_64 --nic net-id=$NET_ID \
                   --key-name jump-key --security-group juju-default juju-client-vm
+        if [ $? -ne 0 ]; then
+            log_error "boot juju-client-vm fail"
+            exit 1
+        fi
     fi
 
     if [[ ! $(nova list | grep juju-metadata-vm) ]]; then
         nova boot --flavor m1.small --image Xenial_x86_64 --nic net-id=$NET_ID \
                   --key-name jump-key --security-group juju-default juju-metadata-vm
+        if [ $? -ne 0 ]; then
+            log_error "boot juju-metadata-vm fail"
+            exit 1
+        fi
     fi
 
     count=300
