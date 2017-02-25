@@ -20,7 +20,7 @@ function generate_compass_openrc()
 
     echo -e "export OS_PASSWORD=console \n\
 export OS_PROJECT_NAME=admin \n\
-export OS_AUTH_URL=http://$PUBLIC_VIP:35357/v2.0 \n\
+export OS_AUTH_URL=http://$PUBLIC_VIP:5000/v2.0 \n\
 export OS_USERNAME=admin \n\
 export OS_VOLUME_API_VERSION=2 \n\
 export OS_REGION_NAME=RegionOne " > $WORK_DIR/admin-openrc.sh

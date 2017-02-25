@@ -8,10 +8,8 @@
 # http://www.apache.org/licenses/LICENSE-2.0
 ##############################################################################
 set -ex
-OPENO_VM_DIR=${WORK_DIR}/openo_vm
 OPENO_VM_ISO=${OPENO_VM_ISO_URL##*/}
-rsa_file=${OPENO_VM_DIR}/boot.rsa
-ssh_args="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $rsa_file"
+OPENO_VM_DIR=${WORK_DIR}/openo_vm
 
 function openo_download_iso()
 {
@@ -70,18 +68,13 @@ function openo_docker_prepare()
            -e "s/GSO_GUI_PORTAL_IP/$GSO_GUI_PORTAL_IP/g" \
            ${OPENO_VM_DIR}/openo_docker.sh
 
-    scp $ssh_args ${OPENO_VM_DIR}/openo_docker.sh root@${OPENO_VM_IP}:/home
-}
-
-function exec_cmd_on_openo()
-{
-    ssh $ssh_args root@$OPENO_VM_IP "$@"
+    scp_to_openo ${OPENO_VM_DIR}/openo_docker.sh /home
 }
 
 function launch_openo_docker()
 {
     openo_docker_prepare
-    cmd="/home/openo_docker.sh"
+    local cmd="/home/openo_docker.sh"
     exec_cmd_on_openo $cmd
 }
 
@@ -103,18 +96,18 @@ function wait_openo_ok()
     set +x
     log_info "wait_openo_ok enter"
     ssh-keygen -f "/root/.ssh/known_hosts" -R $OPENO_VM_IP >/dev/null 2>&1
-    retry=0
-    until timeout 1s ssh $ssh_args root@$OPENO_VM_IP "exit" >/dev/null 2>&1
+    local retry=0
+    until timeout 1s exec_cmd_on_openo "exit" >/dev/null 2>&1
     do
         log_progress "os install time used: $((retry*100/$1))%"
         sleep 1
         let retry+=1
         if [[ $retry -ge $1 ]];then
             # first try
-            ssh $ssh_args root@$OPENO_VM_IP "exit"
+            exec_cmd_on_openo "exit"
             # second try
-            ssh $ssh_args root@$OPENO_VM_IP "exit"
-            exit_status=$?
+            exec_cmd_on_openo "exit"
+            local exit_status=$?
             if [[ $exit_status == 0 ]]; then
                 log_warn "final ssh login open-o success !!!"
                 break
@@ -136,6 +129,7 @@ function launch_openo_vm() {
     local new_mnt=${OPENO_VM_DIR}/new
     local old_iso=${WORK_DIR}/iso/${OPENO_VM_ISO}
     local new_iso=${OPENO_VM_DIR}/centos.iso
+    local rsa_file=${OPENO_VM_DIR}/boot.rsa
 
     sudo virsh net-destroy external
     sudo virsh net-undefine external
@@ -189,7 +183,7 @@ function launch_openo_vm() {
     sudo virsh define ${OPENO_VM_DIR}/open-o.xml
     sudo virsh start open-o
 
-    exit_status=$?
+    local exit_status=$?
     if [ $exit_status != 0 ];then
         log_error "virsh start open-o failed"
         exit 1

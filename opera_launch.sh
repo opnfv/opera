@@ -24,6 +24,7 @@ source ${WORK_DIR}/scripts/network.conf
 
 source ${UTIL_DIR}/log.sh
 source ${OPENO_DIR}/openo_vm.sh
+source ${OPERA_DIR}/command.sh
 source ${JUJU_DIR}/adapter.sh
 source ${JUJU_DIR}/juju_setup.sh
 source ${JUJU_DIR}/juju_launch.sh

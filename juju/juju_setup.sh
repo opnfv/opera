@@ -58,29 +58,35 @@ function juju_prepare()
         neutron router-gateway-set juju-router ext-net
     fi
 
-    if [[ ! $(neutron security-group-rule-list | grep "juju-default") ]]; then
-        neutron security-group-create juju-default --description "juju default security group"
-    fi
+    local default_secgroup_id=$(nova secgroup-list | grep "Default security group" | awk '{print $2}')
 
-    if [[ ! $(neutron security-group-rule-list | grep juju-default | grep "icmp") ]]; then
+    if [[ ! $(neutron security-group-rule-list | grep default | grep "icmp") ]]; then
         neutron security-group-rule-create --direction ingress --protocol icmp \
-                                           --remote-ip-prefix 0.0.0.0/0 juju-default
+                                           --remote-ip-prefix 0.0.0.0/0 $default_secgroup_id
     fi
 
-    if [[ ! $(neutron security-group-rule-list | grep juju-default | grep "22/tcp") ]]; then
+    if [[ ! $(neutron security-group-rule-list | grep default | grep "tcp") ]]; then
         neutron security-group-rule-create --direction ingress --protocol tcp \
-                                           --port_range_min 22 --port_range_max 22 \
-                                           --remote-ip-prefix 0.0.0.0/0 juju-default
+                                           --remote-ip-prefix 0.0.0.0/0 $default_secgroup_id
     fi
 
-    if [[ ! $(neutron security-group-rule-list | grep juju-default | grep "80/tcp") ]]; then
-        neutron security-group-rule-create --direction ingress --protocol tcp \
-                                           --port_range_min 80 --port_range_max 80 \
-                                           --remote-ip-prefix 0.0.0.0/0 juju-default
+    if [[ ! $(neutron security-group-rule-list | grep default | grep "tcp") ]]; then
+        neutron security-group-rule-create --direction egress --protocol tcp \
+                                           --remote-ip-prefix 0.0.0.0/0 $default_secgroup_id
     fi
 
-    if [ ! -f ~/.ssh/id_rsa.pub ]; then
-        ssh-keygen -q -t rsa -f ~/.ssh/id_rsa -N ""
+    if [[ ! $(neutron security-group-rule-list | grep default | grep "udp") ]]; then
+        neutron security-group-rule-create --direction ingress --protocol udp \
+                                           --remote-ip-prefix 0.0.0.0/0 $default_secgroup_id
+    fi
+
+    if [[ ! $(neutron security-group-rule-list | grep default | grep "udp") ]]; then
+        neutron security-group-rule-create --direction egress --protocol udp \
+                                           --remote-ip-prefix 0.0.0.0/0 $default_secgroup_id
+    fi
+
+    if [ ! -f /root/.ssh/id_rsa.pub ]; then
+        ssh-keygen -q -t rsa -f /root/.ssh/id_rsa -N ""
     fi
 
     openstack keypair list | grep jump-key || openstack keypair create --public-key ~/.ssh/id_rsa.pub jump-key

@@ -8,15 +8,13 @@
 # http://www.apache.org/licenses/LICENSE-2.0
 ##############################################################################
 
-ssh_options="-o StrictHostKeyChecking=no"
-
 function launch_juju_vm()
 {
-    NET_ID=$(neutron net-list | grep juju-net | awk '{print $2}')
+    local NET_ID=$(neutron net-list | grep juju-net | awk '{print $2}')
 
     if [[ ! $(nova list | grep juju-client-vm) ]]; then
-        nova boot --flavor m1.small --image Xenial_x86_64 --nic net-id=$NET_ID \
-                  --key-name jump-key --security-group juju-default juju-client-vm
+        nova boot --flavor m1.small --image xenial_x86_64 --nic net-id=$NET_ID \
+                  --key-name jump-key --security-group default juju-client-vm
         if [ $? -ne 0 ]; then
             log_error "boot juju-client-vm fail"
             exit 1
@@ -24,19 +22,19 @@ function launch_juju_vm()
     fi
 
     if [[ ! $(nova list | grep juju-metadata-vm) ]]; then
-        nova boot --flavor m1.small --image Xenial_x86_64 --nic net-id=$NET_ID \
-                  --key-name jump-key --security-group juju-default juju-metadata-vm
+        nova boot --flavor m1.small --image xenial_x86_64 --nic net-id=$NET_ID \
+                  --key-name jump-key --security-group default juju-metadata-vm
         if [ $? -ne 0 ]; then
             log_error "boot juju-metadata-vm fail"
             exit 1
         fi
     fi
 
-    count=300
+    local count=300
     set +x
     while
-        state1=$(nova list | grep juju-client-vm | awk '{print $6}')
-        state2=$(nova list | grep juju-metadata-vm | awk '{print $6}')
+        local state1=$(nova list | grep juju-client-vm | awk '{print $6}')
+        local state2=$(nova list | grep juju-metadata-vm | awk '{print $6}')
         if [[ $state1 == "ERROR" || $state2 == "ERROR" || $count == 0 ]]; then
             log_error "launch juju vm error"
             exit 1
@@ -67,23 +65,13 @@ function launch_juju_vm()
     export floating_ip_metadata=$floating_ip_metadata
 }
 
-function exec_cmd_on_client()
-{
-    ssh $ssh_options ubuntu@$floating_ip_client "$@"
-}
-
-function exec_cmd_on_metadata()
-{
-    ssh $ssh_options ubuntu@$floating_ip_metadata "$@"
-}
-
 function juju_metadata_prepare()
 {
-    cmd="sudo apt update -y; \
+    local cmd="sudo apt update -y; \
          sudo apt-get install nginx -y"
     exec_cmd_on_metadata $cmd
 
-    if [ ! $(exec_cmd_on_metadata sudo ps -aux | grep nginx) ]; then
+    if [[ ! $(exec_cmd_on_metadata sudo ps -aux | grep nginx) ]]; then
         log_error "juju-metadata nginx error"
         exit 1
     fi
@@ -91,7 +79,7 @@ function juju_metadata_prepare()
 
 function juju_client_prepare()
 {
-    cmd1="sudo add-apt-repository ppa:juju/stable; \
+    local cmd1="sudo add-apt-repository ppa:juju/stable; \
          sudo apt update -y; \
          sudo apt install juju zfsutils-linux -y"
     exec_cmd_on_client $cmd1
@@ -104,7 +92,7 @@ function juju_client_prepare()
             $OS_REGION_NAME:
                 endpoint: $OS_AUTH_URL' > clouds.yaml"
 
-    cmd2="juju add-cloud openstack clouds.yaml --replace"
+    local cmd2="juju add-cloud openstack clouds.yaml --replace"
     exec_cmd_on_client $cmd2
 
     if [[ ! $(exec_cmd_on_client "juju list-clouds | grep openstack") ]]; then
@@ -112,11 +100,11 @@ function juju_client_prepare()
         exit 1
     fi
 
-    cmd3='ssh-keygen -q -t rsa -f /home/ubuntu/.ssh/id_rsa -N ""'
+    local cmd3='ssh-keygen -q -t rsa -f /home/ubuntu/.ssh/id_rsa -N ""'
     exec_cmd_on_client $cmd3
 
-    client_key=`exec_cmd_on_client sudo cat /home/ubuntu/.ssh/id_rsa.pub`
-    cmd4="echo $client_key >> /home/ubuntu/.ssh/authorized_keys"
+    local client_key=`exec_cmd_on_client sudo cat /home/ubuntu/.ssh/id_rsa.pub`
+    local cmd4="echo $client_key >> /home/ubuntu/.ssh/authorized_keys"
     exec_cmd_on_metadata $cmd4
 
     exec_cmd_on_client "echo 'credentials:
@@ -127,9 +115,8 @@ function juju_client_prepare()
             tenant-name: $OS_PROJECT_NAME
             username: $OS_USERNAME' > os-creds.yaml"
 
-    # credential uses keystone url V3
-    cmd3="juju add-credential openstack -f os-creds.yaml --replace"
-    exec_cmd_on_client $cmd3
+    local cmd5="juju add-credential openstack -f os-creds.yaml --replace"
+    exec_cmd_on_client $cmd5
 }
 
 function juju_generate_metadata()
@@ -144,13 +131,13 @@ function juju_generate_metadata()
         exec_cmd_on_client $cmd
     done
 
-    cmd1="juju metadata generate-tools -d mt"
+    local cmd1="juju metadata generate-tools -d mt"
     exec_cmd_on_client $cmd1
 
-    cmd2="rsync -e 'ssh $ssh_options' -av mt ubuntu@$floating_ip_metadata:~/"
+    local cmd2="rsync -e 'ssh -o StrictHostKeyChecking=no' -av mt ubuntu@$floating_ip_metadata:~/"
     exec_cmd_on_client $cmd2
 
-    cmd3="sudo cp -a mt/tools/ /var/www/html; \
+    local cmd3="sudo cp -a mt/tools/ /var/www/html; \
           sudo cp -a mt/images/ /var/www/html; \
           sudo chmod a+rx /var/www/html/ -R"
     exec_cmd_on_metadata $cmd3
@@ -164,11 +151,14 @@ function juju_generate_metadata()
 
 function bootstrap_juju_controller()
 {
-    cmd="juju bootstrap openstack openstack \
+    local cmd="juju bootstrap openstack openstack \
         --config image-metadata-url=http://$floating_ip_metadata/images \
-        --config network=juju-net \
+        --config network=juju-net --config use-floating-ip=True \
+        --config use-default-secgroup=True \
+        --constraints 'mem=4G root-disk=40G' \
         --verbose --debug"
     exec_cmd_on_client $cmd
+
 }
 
 function launch_juju()
