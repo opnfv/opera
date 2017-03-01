@@ -1,0 +1,23 @@
+#!/bin/bash
+##############################################################################
+# Copyright (c) 2016-2017 HUAWEI TECHNOLOGIES CO.,LTD and others.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Apache License, Version 2.0
+# which accompanies this distribution, and is available at
+# http://www.apache.org/licenses/LICENSE-2.0
+##############################################################################
+file1=/home/etc/conf/juju_conf.json
+sed -i 's/^\(.*"image-metadata-url":\).*/\1 "http:\/\/REPLACE_JUJU_METADATA_IP\/images"\,/g' $file1
+sed -i 's/^\(.*"network":\).*/\1 "juju-net"\,/g' $file1
+#sed -i 's/^\(.*"use-floating-ip":\).*/\1 "False"\,/g' $file
+
+file2=/home/etc/csarInfo/csarinfo.json
+sed -i 's/^\(.*"csar_file_path":\).*/\1 "\/home\/ubuntu\/csar\/"\,/g' $file2
+
+file3=/home/ROOT/WEB-INF/classes/db.properties
+sed -i 's/^\(.*jdbc.url=\).*/\1jdbc:mysql:\/\/REPLACE_JUJU_DRIVER_IP:3306\/jujuvnfmdb/g' $file3
+
+file4=/home/ROOT/WEB-INF/classes/juju-config.properties
+sed -i 's/^\(.*charmPath=\).*/\1\/home\/ubuntu\/csar\//g' $file4
+sed -i 's/^\(.*grant_jujuvnfm_url=\).*/\1http:\/\/REPLACE_JUJU_DRIVER_IP:8483\//g' $file4
