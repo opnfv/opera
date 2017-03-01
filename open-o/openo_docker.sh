@@ -73,7 +73,7 @@ function docker_pull()
     do
         echo "Try again"
     done
-    until docker pull openoint/nfvo-driver-vnfm-jujud
+    until docker pull openoint/nfvo-driver-vnfm-juju
     do
         echo "Try again"
     done

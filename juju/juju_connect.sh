@@ -64,15 +64,20 @@ function start_tomcat()
     FLUSH PRIVILEGES;
     EOF"
 
-    local cmd2="sed -i s/port=\"8080\"/port=\"8483\"/ /home/ubuntu/tomcat8/conf/server.xml; \
-                ps aux | grep java | awk '{print \"$2\"}' | xargs kill -9; \
-                /home/ubuntu/tomcat8/bin/catalina.sh start"
+    local cmd2='sed -i s/port=\"8080\"/port=\"8483\"/g /home/ubuntu/tomcat8/conf/server.xml'
     exec_cmd_on_client $cmd2
+
+    local cmd3="ps aux | grep java | awk '{print \"$2\"}' | xargs kill -9; \
+                /home/ubuntu/tomcat8/bin/catalina.sh start"
+    exec_cmd_on_client $cmd3
 }
 
 function add_vim_and_vnfm()
 {
-    python ${JUJU_DIR}/openo_connect.py $COMMON_SERVICES_MSB_IP $NFVO_DRIVER_VNFM_JUJU_IP
+    python ${JUJU_DIR}/openo_connect.py --msb_ip $COMMON_SERVICES_MSB_IP \
+                                        --tosca_aria_ip $COMMON_TOSCA_ARIA_IP \
+                                        --juju_client_ip $floating_ip_client \
+                                        --auth_url $OS_AUTH_URL
 
     local cmd3="docker stop nfvo-driver-vnfm-juju; \
                 docker start nfvo-driver-vnfm-juju"
