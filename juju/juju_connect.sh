@@ -72,7 +72,10 @@ function start_tomcat()
 
 function add_vim_and_vnfm()
 {
-    python ${JUJU_DIR}/openo_connect.py $COMMON_SERVICES_MSB_IP $NFVO_DRIVER_VNFM_JUJU_IP
+    python ${JUJU_DIR}/openo_connect.py --msb_ip $COMMON_SERVICES_MSB_IP \
+                                        --tosca_aria_ip $COMMON_TOSCA_ARIA_IP \
+                                        --juju_client_ip $floating_ip_client \
+                                        --auth_url $OS_AUTH_URL
 
     local cmd3="docker stop nfvo-driver-vnfm-juju; \
                 docker start nfvo-driver-vnfm-juju"

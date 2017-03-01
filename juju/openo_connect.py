@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0
 ##############################################################################
 
+import argparse
 import sys
 import os
 import requests
@@ -40,13 +41,9 @@ def add_common_tosca_aria(msb_ip, tosca_aria_ip):
     except Exception:
         raise
 
-def add_openo_vim(msb_ip):
+def add_openo_vim(msb_ip, auth_url):
     url = 'http://' + msb_ip + '/openoapi/extsys/v1/vims/'
     headers = {'Content-Type': 'application/json'}
-    if os.getenv('OS_AUTH_URL') is None:
-        raise RaiseError('env OS_AUTH_URL not found')
-    else:
-        auth_url = os.getenv('OS_AUTH_URL')
     data = {"name":"openstack",
             "url":auth_url,
             "userName":"admin",
@@ -65,14 +62,10 @@ def add_openo_vim(msb_ip):
     except Exception:
         raise
 
-def add_openo_vnfm(msb_ip):
+def add_openo_vnfm(msb_ip, juju_client_ip):
     vnfm_url = 'http://' + msb_ip + '/openoapi/extsys/v1/vnfms'
     vim_url = 'http://' + msb_ip + '/openoapi/extsys/v1/vims'
     headers = {'Content-Type': 'application/json'}
-    if os.getenv('floating_ip_client') is None:
-        raise RaiseError('env floating_ip_client not found')
-    else:
-        juju_client_ip = os.getenv('floating_ip_client')
     try:
         resp = requests.get(vim_url)
         if resp.status_code not in (200,201):
@@ -99,10 +92,25 @@ def add_openo_vnfm(msb_ip):
 
 if __name__ == "__main__":
 
-    if len(sys.argv) != 3:
-        raise RaiseError('input open-o ip error')
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--msb_ip", action='store', help="common_services_msb ip")
+    parser.add_argument("--tosca_aria_ip", action='store', help="common_tosca_aria ip")
+    parser.add_argument("--juju_client_ip", action='store', help="juju client ip")
+    parser.add_argument("--auth_url", action='store', help="openstack auth url")
 
-    _, msb_ip, tosca_aria_ip = sys.argv
+    args = parser.parse_args()
+    msb_ip = args.msb_ip
+    tosca_aria_ip = args.tosca_aria_ip
+    juju_client_ip = args.juju_client_ip
+    auth_url = args.auth_url
+
+    if None in (msb_ip, tosca_aria_ip, juju_client_ip, auth_url):
+        missing = []
+        for i in (msb_ip, tosca_aria_ip, juju_client_ip, auth_url):
+            if i is None:
+                missing.append(i)
+        raise RaiseError('missing parameter: %s' % missing)
+
     add_common_tosca_aria(msb_ip, tosca_aria_ip)
-    add_openo_vim(msb_ip)
-    add_openo_vnfm(msb_ip)
+    add_openo_vim(msb_ip, auth_url)
+    add_openo_vnfm(msb_ip, juju_client_ip)
