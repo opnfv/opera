@@ -42,6 +42,7 @@ function sync_juju_driver_file()
 
     scp_to_openo ${UTIL_DIR}/modify_file.sh /home
     local cmd2="sed -i s/REPLACE_JUJU_DRIVER_IP/$NFVO_DRIVER_VNFM_JUJU_IP/ /home/modify_file.sh; \
+                sed -i s/REPLACE_JUJU_METADATA_IP/$floating_ip_metadata/ /home/modify_file.sh; \
                 chmod +x /home/modify_file.sh; \
                 /home/modify_file.sh"
     exec_cmd_on_openo $cmd2
