@@ -73,7 +73,7 @@ function docker_pull()
     do
         echo "Try again"
     done
-    until docker pull openoint/nfvo-driver-vnfm-juju:REPLACE_OPENO_TAG
+    until docker pull openoint/nfvo-driver-vnfm-jujud
     do
         echo "Try again"
     done
@@ -188,7 +188,7 @@ function docker_run()
     docker run -d -e MSB_ADDR=COMMON_SERVICES_MSB_IP:80 --network lab_net --ip NFVO_DRIVER_SDNC_ZTE_IP --name nfvo-driver-sdnc-zte openoint/nfvo-driver-sdnc-zte:REPLACE_OPENO_TAG
     docker run -d -e MSB_ADDR=COMMON_SERVICES_MSB_IP:80 --network lab_net --ip NFVO_DRIVER_VIM_IP --name nfvo-driver-vim openoint/nfvo-driver-vim:REPLACE_OPENO_TAG
     docker run -d -e MSB_ADDR=COMMON_SERVICES_MSB_IP:80 --network lab_net --ip NFVO_DRIVER_VNFM_HUAWEI_IP --name nfvo-driver-vnfm-huawei openoint/nfvo-driver-vnfm-huawei:REPLACE_OPENO_TAG
-    docker run -d -e MSB_ADDR=COMMON_SERVICES_MSB_IP:80 --network lab_net --ip NFVO_DRIVER_VNFM_JUJU_IP --name nfvo-driver-vnfm-juju openoint/nfvo-driver-vnfm-juju:REPLACE_OPENO_TAG
+    docker run -d -e MSB_ADDR=COMMON_SERVICES_MSB_IP:80 --network lab_net --ip NFVO_DRIVER_VNFM_JUJU_IP --name nfvo-driver-vnfm-juju openoint/nfvo-driver-vnfm-juju
     docker run -d -e MSB_ADDR=COMMON_SERVICES_MSB_IP:80 --network lab_net --ip NFVO_DRIVER_VNFM_ZTE_IP --name nfvo-driver-vnfm-zte openoint/nfvo-driver-vnfm-zte:REPLACE_OPENO_TAG
     docker run -d -e MSB_ADDR=COMMON_SERVICES_MSB_IP:80 -e MYSQL_ADDR=COMMON_TOSCA_INVENTORY_IP:3306 --network lab_net --ip NFVO_LCM_IP --name nfvo-lcm openoint/nfvo-lcm:REPLACE_OPENO_TAG
     docker run -d -e MSB_ADDR=COMMON_SERVICES_MSB_IP:80 --network lab_net --ip NFVO_RESMANAGEMENT_IP --name nfvo-resmanagement openoint/nfvo-resmanagement:REPLACE_OPENO_TAG

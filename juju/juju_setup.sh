@@ -89,7 +89,8 @@ function juju_prepare()
         ssh-keygen -q -t rsa -f /root/.ssh/id_rsa -N ""
     fi
 
-    openstack keypair list | grep jump-key || openstack keypair create --public-key ~/.ssh/id_rsa.pub jump-key
+    openstack keypair list | grep jump-key || openstack keypair create --public-key \
+                                              /root/.ssh/id_rsa.pub jump-key
 
     openstack flavor show m1.tiny   || openstack flavor create --ram 512 --disk 5 --vcpus 1 --public m1.tiny
     openstack flavor show m1.small  || openstack flavor create --ram 1024 --disk 10 --vcpus 1 --public m1.small

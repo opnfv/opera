@@ -158,7 +158,6 @@ function bootstrap_juju_controller()
         --constraints 'mem=4G root-disk=40G' \
         --verbose --debug"
     exec_cmd_on_client $cmd
-
 }
 
 function launch_juju()

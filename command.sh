@@ -50,7 +50,7 @@ function exec_cmd_on_client()
         log_error "juju-client ip not found"
         exit 1
     fi
-    ssh $ssh_options ubuntu@$floating_ip_client "$@"
+    ssh $ssh_args ubuntu@$floating_ip_client "$@"
 }
 
 function exec_cmd_on_metadata()
@@ -61,5 +61,5 @@ function exec_cmd_on_metadata()
         log_error "juju-metadata ip not found"
         exit 1
     fi
-    ssh $ssh_options ubuntu@$floating_ip_metadata "$@"
+    ssh $ssh_args ubuntu@$floating_ip_metadata "$@"
 }
