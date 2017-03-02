@@ -65,6 +65,11 @@ function juju_prepare()
                                            --remote-ip-prefix 0.0.0.0/0 $default_secgroup_id
     fi
 
+    if [[ ! $(neutron security-group-rule-list | grep default | grep "icmp") ]]; then
+        neutron security-group-rule-create --direction egress --protocol icmp \
+                                           --remote-ip-prefix 0.0.0.0/0 $default_secgroup_id
+    fi
+
     if [[ ! $(neutron security-group-rule-list | grep default | grep "tcp") ]]; then
         neutron security-group-rule-create --direction ingress --protocol tcp \
                                            --remote-ip-prefix 0.0.0.0/0 $default_secgroup_id

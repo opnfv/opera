@@ -36,12 +36,16 @@ source ${JUJU_DIR}/juju_connect.sh
 mkdir -p $WORK_DIR
 
 if [[ "$DEPLOY_FIRST_TIME" == "true" ]]; then
+    sudo rm -f /root/.ssh/known_hosts
+    sudo rm -f /root/.ssh/known_hosts.old
     package_prepare
     network_prepare
     generate_compass_openrc
 fi
 
 source $WORK_DIR/admin-openrc.sh
+
+sudo sync && sudo sysctl -w vm.drop_caches=3
 
 if [[ "$DEPLOY_OPENO" == "true" ]]; then
     if ! openo_download_iso; then
@@ -60,6 +64,8 @@ if [[ "$DEPLOY_OPENO" == "true" ]]; then
     fi
 fi
 
+sudo sync && sudo sysctl -w vm.drop_caches=3
+
 if [[ "$DEPLOY_JUJU" == "true" ]]; then
     juju_env_prepare
 
@@ -72,9 +78,7 @@ if [[ "$DEPLOY_JUJU" == "true" ]]; then
         log_error "launch_juju failed"
         exit 1
     fi
-fi
 
-if [[ "$DEPLOY_OPENO" == "true" && "$DEPLOY_JUJU" == "true" ]]; then
     connect_juju_and_openo
 fi
 
