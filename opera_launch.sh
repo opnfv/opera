@@ -36,8 +36,6 @@ source ${JUJU_DIR}/juju_connect.sh
 mkdir -p $WORK_DIR
 
 if [[ "$DEPLOY_FIRST_TIME" == "true" ]]; then
-    sudo rm -f /root/.ssh/known_hosts
-    sudo rm -f /root/.ssh/known_hosts.old
     package_prepare
     network_prepare
     generate_compass_openrc
