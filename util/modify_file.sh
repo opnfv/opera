@@ -10,7 +10,7 @@
 file1=/home/etc/conf/juju_conf.json
 sed -i 's/^\(.*"image-metadata-url":\).*/\1 "http:\/\/REPLACE_JUJU_METADATA_IP\/images"\,/g' $file1
 sed -i 's/^\(.*"network":\).*/\1 "juju-net"\,/g' $file1
-#sed -i 's/^\(.*"use-floating-ip":\).*/\1 "False"\,/g' $file
+sed -i 's/^\(.*"use-floating-ip":\).*/\1 "True"\,/g' $file
 
 file2=/home/etc/csarInfo/csarinfo.json
 sed -i 's/^\(.*"csar_file_path":\).*/\1 "\/home\/ubuntu\/csar\/"\,/g' $file2

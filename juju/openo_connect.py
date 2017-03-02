@@ -21,6 +21,32 @@ class RaiseError(Exception):
     def __str__(self):
         return repr(self.msg)
 
+def request_get(url):
+    try:
+        resp = requests.get(url)
+        if resp.status_code not in (200,201):
+            raise RaiseError('get url: %s fail %d' % (url, resp.status_code))
+    except Exception:
+        raise
+
+    return resp.json()
+
+def request_post(url, data, headers):
+    try:
+        resp = requests.post(url, data=json.dumps(data), headers=headers)
+        if resp.status_code not in (200,201):
+            raise RaiseError('post url: %s fail %d' % (url, resp.status_code))
+    except Exception:
+        raise
+
+def request_delete(url):
+    try:
+        resp = requests.delete(url)
+        if resp.status_code not in (200,201,204):
+            raise RaiseError('delete url: %s fail %d' % (url, resp.status_code))
+    except Exception:
+        raise
+
 def add_common_tosca_aria(msb_ip, tosca_aria_ip):
     url = 'http://' + msb_ip + '/openoapi/microservices/v1/apiRoute'
     headers = {'Content-Type': 'application/json'}
@@ -33,13 +59,7 @@ def add_common_tosca_aria(msb_ip, tosca_aria_ip):
             "control":"0",
             "status":"1",
             "servers":[{"ip":tosca_aria_ip,"port":"8204","weight":0}]}
-    try:
-        resp = requests.post(url, data=json.dumps(data), headers=headers)
-        if resp.status_code not in (200,201):
-            raise RaiseError('add common_tosca_aria service failed')
-
-    except Exception:
-        raise
+    request_post(url, data, headers)
 
 def add_openo_vim(msb_ip, auth_url):
     url = 'http://' + msb_ip + '/openoapi/extsys/v1/vims/'
@@ -54,41 +74,43 @@ def add_openo_vim(msb_ip, auth_url):
             "version":"newton",
             "description":"",
             "type":"openstack"}
-    try:
-        resp = requests.post(url, data=json.dumps(data), headers=headers)
-        if resp.status_code not in (200,201):
-            raise RaiseError('add open-o vim failed')
+    get = request_get(url)
+    for i in get:
+        if i["type"] == "openstack":
+            request_delete(url + i["vimId"])
 
-    except Exception:
-        raise
+    request_post(url, data, headers)
 
 def add_openo_vnfm(msb_ip, juju_client_ip):
-    vnfm_url = 'http://' + msb_ip + '/openoapi/extsys/v1/vnfms'
     vim_url = 'http://' + msb_ip + '/openoapi/extsys/v1/vims'
+    vnfm_url = 'http://' + msb_ip + '/openoapi/extsys/v1/vnfms'
     headers = {'Content-Type': 'application/json'}
-    try:
-        resp = requests.get(vim_url)
-        if resp.status_code not in (200,201):
-            raise RaiseError('add open-o vnfm failed')
+    get_vim = request_get(vim_url)
+    vimId = ''
+    for i in get_vim:
+        if i["type"] == "openstack":
+            vimId = i['vimId']
+            break
 
-        vimInfo = resp.json()
-        vimId = vimInfo[0]['vimId']
-        data = {"name":"Juju-VNFM",
-                "vimId":vimId,
-                "vendor":"jujuvnfm",
-                "version":"jujuvnfm",
-                "type":"jujuvnfm",
-                "description":"",
-                "certificateUrl":"",
-                "url":"http://" + juju_client_ip + ":8483",
-                "userName":"",
-                "password":""}
-        resp = requests.post(vnfm_url, data=json.dumps(data), headers=headers)
-        if resp.status_code not in (200,201):
-            raise RaiseError('add open-o vnfm failed')
+    if vimId is None:
+        raise RaiseError("vim openstack not found")
 
-    except Exception:
-        raise
+    get_vnfm = request_get(vnfm_url)
+    for i in get_vnfm:
+        if i["vimId"] == vimId:
+            request_delete(vnfm_url + i["vnfmId"])
+
+    data = {"name":"Juju-VNFM",
+            "vimId":vimId,
+            "vendor":"jujuvnfm",
+            "version":"jujuvnfm",
+            "type":"jujuvnfm",
+            "description":"",
+            "certificateUrl":"",
+            "url":"http://" + juju_client_ip + ":8483",
+            "userName":"",
+            "password":""}
+    request_post(vnfm_url, data, headers)
 
 if __name__ == "__main__":
 
