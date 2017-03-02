@@ -64,6 +64,7 @@ function start_tomcat()
     GRANT ALL PRIVILEGES ON *.*  TO 'root'@'%' IDENTIFIED BY 'rootpass' WITH GRANT OPTION;
     FLUSH PRIVILEGES;
     EOF"
+    exec_cmd_on_client $cmd1
 
     local cmd2='sed -i s/port=\"8080\"/port=\"8483\"/g /home/ubuntu/tomcat8/conf/server.xml'
     exec_cmd_on_client $cmd2
@@ -80,9 +81,9 @@ function add_vim_and_vnfm()
                                         --juju_client_ip $floating_ip_client \
                                         --auth_url $OS_AUTH_URL
 
-    local cmd3="docker stop nfvo-driver-vnfm-juju; \
+    local cmd1="docker stop nfvo-driver-vnfm-juju; \
                 docker start nfvo-driver-vnfm-juju"
-    exec_cmd_on_openo $cmd3
+    exec_cmd_on_openo $cmd1
 }
 
 function connect_juju_and_openo()

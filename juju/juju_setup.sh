@@ -12,6 +12,9 @@ IMG_DIR=${WORK_DIR}/img
 
 function juju_env_prepare()
 {
+    sudo rm -f /root/.ssh/known_hosts
+    sudo rm -f /root/.ssh/known_hosts.old
+
     mkdir -p ${WORK_DIR}/venv
     sudo pip install --upgrade virtualenv
     virtualenv ${WORK_DIR}/venv
