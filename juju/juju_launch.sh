@@ -59,7 +59,22 @@ function launch_juju_vm()
         floating_ip_metadata=$(nova list | grep juju-metadata-vm | awk '{print $13}')
     fi
 
-    sleep 60
+    local wait=120
+    set +x
+    while
+        if [[ $wait == 0 ]]; then
+            log_error "launch juju vm can't access"
+            exit 1
+        fi
+        exec_cmd_on_client exit
+        local ready1=$?
+        exec_cmd_on_metadata exit
+        local ready2=$?
+        let wait-=1
+        sleep 2
+        [[ $ready1 != 0 || $ready2 != 0 ]]
+    do :;done
+    set -x
 
     export floating_ip_client=$floating_ip_client
     export floating_ip_metadata=$floating_ip_metadata

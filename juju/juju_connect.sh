@@ -60,11 +60,11 @@ function sync_juju_driver_file()
 
 function start_tomcat()
 {
-    local cmd1="mysql -uroot -p'rootpass' << EOF
-    GRANT ALL PRIVILEGES ON *.*  TO 'root'@'%' IDENTIFIED BY 'rootpass' WITH GRANT OPTION;
-    FLUSH PRIVILEGES;
-    EOF"
-    exec_cmd_on_client $cmd1
+    scp_to_openo ${UTIL_DIR}/grant_mysql.sh /home
+    local cmd1="chmod +x /home/grant_mysql.sh; \
+          docker cp /home/grant_mysql.sh nfvo-driver-vnfm-juju:/service; \
+          docker exec -i nfvo-driver-vnfm-juju /service/grant_mysql.sh"
+    exec_cmd_on_openo $cmd1
 
     local cmd2='sed -i s/port=\"8080\"/port=\"8483\"/g /home/ubuntu/tomcat8/conf/server.xml'
     exec_cmd_on_client $cmd2
