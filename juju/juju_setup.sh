@@ -93,16 +93,17 @@ function juju_prepare()
                                            --remote-ip-prefix 0.0.0.0/0 $default_secgroup_id
     fi
 
-    if [ ! -f /root/.ssh/id_rsa.pub ]; then
-        ssh-keygen -q -t rsa -f /root/.ssh/id_rsa -N ""
-    fi
+    echo -e 'n\n'|ssh-keygen -q -t rsa -N "" -f /root/.ssh/id_rsa 1>/dev/null
 
-    openstack keypair list | grep jump-key || openstack keypair create --public-key \
-                                              /root/.ssh/id_rsa.pub jump-key
+    openstack keypair delete jump-key | true
+    openstack keypair create --public-key /root/.ssh/id_rsa.pub jump-key
 
     openstack flavor show m1.tiny   || openstack flavor create --ram 512 --disk 5 --vcpus 1 --public m1.tiny
     openstack flavor show m1.small  || openstack flavor create --ram 1024 --disk 10 --vcpus 1 --public m1.small
     openstack flavor show m1.medium || openstack flavor create --ram 2048 --disk 10 --vcpus 2 --public m1.medium
     openstack flavor show m1.large  || openstack flavor create --ram 3072 --disk 10 --vcpus 2 --public m1.large
     openstack flavor show m1.xlarge || openstack flavor create --ram 8096 --disk 30 --vcpus 4 --public m1.xlarge
+
+    openstack quota set --instances 20 admin
+    openstack quota set --core 30 admin
 }

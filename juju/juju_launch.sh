@@ -7,6 +7,13 @@
 # which accompanies this distribution, and is available at
 # http://www.apache.org/licenses/LICENSE-2.0
 ##############################################################################
+function clear_juju_vm()
+{
+    servers=$(openstack server list | grep juju | awk '{print $2}')
+    if [[ -n $servers ]];then
+        openstack server delete $servers
+    fi
+}
 
 function launch_juju_vm()
 {
@@ -66,9 +73,9 @@ function launch_juju_vm()
             log_error "launch juju vm can't access"
             exit 1
         fi
-        exec_cmd_on_client exit
+        exec_cmd_on_client exit 2>/dev/null
         local ready1=$?
-        exec_cmd_on_metadata exit
+        exec_cmd_on_metadata exit 2>/dev/null
         local ready2=$?
         let wait-=1
         sleep 2
@@ -115,7 +122,7 @@ function juju_client_prepare()
         exit 1
     fi
 
-    local cmd3='ssh-keygen -q -t rsa -f /home/ubuntu/.ssh/id_rsa -N ""'
+    local cmd3="echo -e \'n\\n\'|ssh-keygen -q -t rsa -N \"\" -f /home/ubuntu/.ssh/id_rsa 1>/dev/null"
     exec_cmd_on_client $cmd3
 
     local client_key=`exec_cmd_on_client sudo cat /home/ubuntu/.ssh/id_rsa.pub`
@@ -166,13 +173,17 @@ function juju_generate_metadata()
 
 function bootstrap_juju_controller()
 {
-    local cmd="juju bootstrap openstack openstack \
-        --config image-metadata-url=http://$floating_ip_metadata/images \
-        --config network=juju-net --config use-floating-ip=True \
-        --config use-default-secgroup=True \
-        --constraints 'mem=4G root-disk=40G' \
-        --verbose --debug"
+    local cmd="juju controllers | grep openstack"
     exec_cmd_on_client $cmd
+    if [[ $? != 0 ]];then
+        local cmd1="juju bootstrap openstack openstack \
+            --config image-metadata-url=http://$floating_ip_metadata/images \
+            --config network=juju-net --config use-floating-ip=True \
+            --config use-default-secgroup=True \
+            --constraints 'mem=4G root-disk=40G' \
+            --verbose --debug"
+        exec_cmd_on_client $cmd1
+    fi
 }
 
 function launch_juju()

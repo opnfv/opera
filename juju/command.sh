@@ -8,40 +8,6 @@
 # http://www.apache.org/licenses/LICENSE-2.0
 ##############################################################################
 
-function exec_cmd_on_openo()
-{
-    local rsa_file=${OPENO_VM_DIR}/boot.rsa
-    local ssh_args="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $rsa_file"
-
-    if [ ! -f $rsa_file ]; then
-        log_error "open-o vm boot.rsa not found"
-        exit 1
-    fi
-
-    if [ ! $OPENO_VM_IP ]; then
-        log_error "open-o vm ip not found"
-        exit 1
-    fi
-    ssh $ssh_args root@$OPENO_VM_IP "$@"
-}
-
-function scp_to_openo()
-{
-    local rsa_file=${OPENO_VM_DIR}/boot.rsa
-    local ssh_args="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $rsa_file"
-
-    if [ ! -f $rsa_file ]; then
-        log_error "open-o vm boot.rsa not found"
-        exit 1
-    fi
-
-    if [ ! $OPENO_VM_IP ]; then
-        log_error "open-o vm ip not found"
-        exit 1
-    fi
-    scp $ssh_args $1 root@$OPENO_VM_IP:$2
-}
-
 function exec_cmd_on_client()
 {
     local ssh_args="-o StrictHostKeyChecking=no"

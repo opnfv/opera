@@ -10,85 +10,106 @@
 
 function connect_prepare()
 {
-    local cmd1="yum install -y rsync"
-    exec_cmd_on_openo $cmd1
+    apt-get install -y rsync
 
-    local cmd2="if [[ ! -f /root/.ssh/id_rsa.pub ]]; then \
-                    sudo ssh-keygen -q -t rsa -f /root/.ssh/id_rsa -N ''; \
-                fi"
-    exec_cmd_on_openo $cmd2
-
-    local openo_key=`exec_cmd_on_openo cat /root/.ssh/id_rsa.pub`
-    local cmd3="echo $openo_key >> /home/ubuntu/.ssh/authorized_keys"
-    exec_cmd_on_client $cmd3
-
-    local cmd4="sudo apt-get install -y default-jdk; \
-                wget https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.9/bin/apache-tomcat-8.5.9.tar.gz; \
-                tar -zxvf apache-tomcat-8.5.9.tar.gz; \
-                rm -rf tomcat8; \
-                mv apache-tomcat-8.5.9 tomcat8; \
-                rm -rf tomcat8/webapps/*; \
-                mkdir csar"
-    exec_cmd_on_client $cmd4
+    local cmd="sudo apt-get install -y default-jdk; \
+               wget -nc https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.9/bin/apache-tomcat-8.5.9.tar.gz; \
+               tar -zxvf apache-tomcat-8.5.9.tar.gz; \
+               sudo rm -rf tomcat8 csar; \
+               mv apache-tomcat-8.5.9 tomcat8; \
+               rm -rf tomcat8/webapps/*; \
+               mkdir csar"
+    exec_cmd_on_client $cmd
 }
 
 function sync_juju_driver_file()
 {
+    local TOMCAT_DIR=${WORK_DIR}/tomcat
+    rm -rf ${TOMCAT_DIR}
+    mkdir -p ${TOMCAT_DIR}
+
     connect_prepare
 
-    local cmd1="docker cp nfvo-driver-vnfm-juju:/service/webapps/ROOT /home/; \
-                docker cp nfvo-driver-vnfm-juju:/service/etc /home/;"
-    exec_cmd_on_openo $cmd1
+    docker cp nfvo-driver-vnfm-juju:/service/webapps/ROOT ${TOMCAT_DIR}
+    docker cp nfvo-driver-vnfm-juju:/service/etc ${TOMCAT_DIR}
 
-    scp_to_openo ${UTIL_DIR}/modify_file.sh /home
-    local cmd2="sed -i s/REPLACE_JUJU_DRIVER_IP/$NFVO_DRIVER_VNFM_JUJU_IP/ /home/modify_file.sh; \
-                sed -i s/REPLACE_JUJU_METADATA_IP/$floating_ip_metadata/ /home/modify_file.sh; \
-                chmod +x /home/modify_file.sh; \
-                /home/modify_file.sh"
-    exec_cmd_on_openo $cmd2
+    file1=${TOMCAT_DIR}/etc/conf/juju_conf.json
+    sed -i "s/^\(.*\"image-metadata-url\":\).*/\1 \"http:\/\/$floating_ip_metadata\/images\"\,/g" $file1
+    sed -i "s/^\(.*\"network\":\).*/\1 \"juju-net\"\,/g" $file1
+    sed -i "s/^\(.*\"use-floating-ip\":\).*/\1 \"True\"\,/g" $file1
 
-    local cmd3="rsync -e 'ssh -o StrictHostKeyChecking=no' --rsync-path='sudo rsync' \
-                -av /home/etc ubuntu@$floating_ip_client:/home/ubuntu/tomcat8/; \
-                rsync -e 'ssh -o StrictHostKeyChecking=no' --rsync-path='sudo rsync' \
-                -av /home/ROOT ubuntu@$floating_ip_client:/home/ubuntu/tomcat8/webapps"
-    exec_cmd_on_openo $cmd3
+    file2=${TOMCAT_DIR}/etc/csarInfo/csarinfo.json
+    sed -i "s/^\(.*\"csar_file_path\":\).*/\1 \"\/home\/ubuntu\/csar\/\"\,/g" $file2
 
-    local cmd4="docker cp /home/etc nfvo-driver-vnfm-juju:/service/; \
-                docker cp /home/ROOT nfvo-driver-vnfm-juju:/service/webapps/"
-    exec_cmd_on_openo $cmd4
+    file3=${TOMCAT_DIR}/ROOT/WEB-INF/classes/db.properties
+    sed -i "s/^\(.*jdbc.url=\).*/\1jdbc:mysql:\/\/$OPENO_IP:$NFVO_DRIVER_VNFM_JUJU_MYSQL_PORT\/jujuvnfmdb/g" $file3
+
+    file4=${TOMCAT_DIR}/ROOT/WEB-INF/classes/juju-config.properties
+    sed -i "s/^\(.*charmPath=\).*/\1\/home\/ubuntu\/csar\//g" $file4
+    sed -i "s/^\(.*grant_jujuvnfm_url=\).*/\1http:\/\/$OPENO_IP:$NFVO_DRIVER_VNFM_JUJU_PORT\//g" $file4
+
+    file5=${TOMCAT_DIR}/etc/conf/restclient.json
+    sed -i "s/^\(.*\"host\":\).*/\1\"$OPENO_IP\"\,/g" $file5
+    sed -i "s|^\(.*\"port\":\).*|\1\"$COMMON_SERVICES_MSB_PORT\"|g" $file5
+
+    file6=${TOMCAT_DIR}/etc/adapterInfo/jujuadapterinfo.json
+    sed -i "s/^\(.*\"ip\":\).*/\1 \"$OPENO_IP\"\,/g" $file6
+
+    rsync -e 'ssh -o StrictHostKeyChecking=no' --rsync-path='sudo rsync' \
+    -av ${TOMCAT_DIR}/etc ubuntu@$floating_ip_client:/home/ubuntu/tomcat8/
+    rsync -e 'ssh -o StrictHostKeyChecking=no' --rsync-path='sudo rsync' \
+    -av ${TOMCAT_DIR}/ROOT ubuntu@$floating_ip_client:/home/ubuntu/tomcat8/webapps
+
+    docker cp ${TOMCAT_DIR}/etc nfvo-driver-vnfm-juju:/service/
+    docker cp ${TOMCAT_DIR}/ROOT nfvo-driver-vnfm-juju:/service/webapps/
 }
 
 function start_tomcat()
 {
-    scp_to_openo ${UTIL_DIR}/grant_mysql.sh /home
-    local cmd1="chmod +x /home/grant_mysql.sh; \
-          docker cp /home/grant_mysql.sh nfvo-driver-vnfm-juju:/service; \
-          docker exec -i nfvo-driver-vnfm-juju /service/grant_mysql.sh"
-    exec_cmd_on_openo $cmd1
+    chmod +x ${UTIL_DIR}/grant_mysql.sh
+    docker cp ${UTIL_DIR}/grant_mysql.sh nfvo-driver-vnfm-juju:/service
+    docker exec -i nfvo-driver-vnfm-juju /service/grant_mysql.sh
 
-    local cmd2='sed -i s/port=\"8080\"/port=\"8483\"/g /home/ubuntu/tomcat8/conf/server.xml'
+    local cmd1='sed -i s/port=\"8080\"/port=\"8483\"/g /home/ubuntu/tomcat8/conf/server.xml'
+    exec_cmd_on_client $cmd1
+
+    local cmd2="pidof java | xargs kill -9; \
+                /home/ubuntu/tomcat8/bin/catalina.sh start"
+
     exec_cmd_on_client $cmd2
 
-    local cmd3="ps aux | grep java | awk '{print \"$2\"}' | xargs kill -9; \
-                /home/ubuntu/tomcat8/bin/catalina.sh start"
-    exec_cmd_on_client $cmd3
+    docker stop nfvo-driver-vnfm-juju
+    docker start nfvo-driver-vnfm-juju
 }
 
-function add_vim_and_vnfm()
+function openo_connect()
 {
-    python ${JUJU_DIR}/openo_connect.py --msb_ip $COMMON_SERVICES_MSB_IP \
-                                        --tosca_aria_ip $COMMON_TOSCA_ARIA_IP \
+    python ${JUJU_DIR}/openo_connect.py --application $APP_NAME \
+                                        --msb_ip $OPENO_IP:$COMMON_SERVICES_MSB_PORT \
+                                        --tosca_aria_ip $OPENO_IP \
+                                        --tosca_aria_port $COMMON_TOSCA_ARIA_PORT \
                                         --juju_client_ip $floating_ip_client \
-                                        --auth_url $OS_AUTH_URL
+                                        --auth_url $OS_AUTH_URL \
+                                        --ns_pkg "${CSAR_DIR}/${APP_NS_PKG}" \
+                                        --vnf_pkg "${CSAR_DIR}/${APP_VNF_PKG}"
+}
 
-    local cmd1="docker stop nfvo-driver-vnfm-juju; \
-                docker start nfvo-driver-vnfm-juju"
-    exec_cmd_on_openo $cmd1
+function fix_openo_containers()
+{
+    docker exec gso-service-gateway sed -i "s|^\(.*\"port\":\).*|\1 \"$COMMON_SERVICES_MSB_PORT\"|g" /service/etc/conf/restclient.json
+    docker stop gso-service-gateway
+    docker start gso-service-gateway
+    docker exec nfvo-resmanagement sed -i "s|^\(.*\"port\":\).*|\1 \"$COMMON_SERVICES_MSB_PORT\"|g" /service/etc/conf/restclient.json
+    docker stop nfvo-resmanagement
+    docker start nfvo-resmanagement
 }
 
 function connect_juju_and_openo()
 {
+    log_info "connect_juju_and_openo enter"
+
     sync_juju_driver_file
     start_tomcat
-    add_vim_and_vnfm
+#    fix_openo_containers
+    openo_connect
 }
