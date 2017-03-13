@@ -6,10 +6,7 @@
 # which accompanies this distribution, and is available at
 # http://www.apache.org/licenses/LICENSE-2.0
 ##############################################################################
----
-openo:
-  tag: 1.0.0
-  cpu: 4
-  memory: 64
-  disk: 100
-  vnet: external
+application:
+  - name: clearwater
+    ns_pkg: pop_ns_juju.csar
+    vnf_pkg: JUJU_clearwater.csar
