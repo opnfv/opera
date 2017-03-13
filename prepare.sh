@@ -7,47 +7,53 @@
 # which accompanies this distribution, and is available at
 # http://www.apache.org/licenses/LICENSE-2.0
 ##############################################################################
+SCRIPT_DIR=${WORK_DIR}/scripts
 
 function generate_conf()
 {
-    rm -rf ${WORK_DIR}/scripts
-    mkdir -p ${WORK_DIR}/scripts
-    python ${OPERA_DIR}/process_conf.py ${CONF_DIR}/openo-vm.yml ${CONF_DIR}/network.yml
+    rm -rf ${SCRIPT_DIR}
+    mkdir -p ${SCRIPT_DIR}
+    python ${OPERA_DIR}/process_conf.py ${CONF_DIR}/open-o.yml \
+                                        ${CONF_DIR}/application.yml
 }
 
 function package_prepare()
 {
     if [[ $(grep Ubuntu /etc/issue) ]]; then
         sudo apt-get update -y
-        sudo apt-get install -y wget mkisofs qemu-utils qemu-kvm libvirt-bin openvswitch-switch python-pip sshpass figlet
+        sudo apt-get install -y wget python-pip sshpass figlet curl net-tools
     else
         # not test with redhat server yet
         sudo yum update -y
-        sudo yum install -y wget mkisofs qemu-kvm libvirt-bin openvswitch-switch python-pip sshpass figlet
+        sudo yum install -y wget python-pip sshpass figlet curl net-tools
     fi
-    service openvswitch-switch start
+    sudo pip install pyyaml
+    docker version &>/dev/null
+    if [[ $? != 0 ]];then
+        curl -sSL https://experimental.docker.com/ | sh
+        service docker start
+    fi
 }
 
 function network_prepare()
 {
-    sudo ovs-vsctl list-br |grep br-external
-    br_exist=$?
-    external_nic=`ip route |grep '^default'|awk '{print $5F}'`
-    route_info=`ip route |grep -Eo '^default via [^ ]+'`
-    ip_info=`ip addr show $external_nic|grep -Eo '[^ ]+ brd [^ ]+ '`
-    if [ $br_exist -eq 0 ]; then
-        if [ "$external_nic" != "br-external" ]; then
-            sudo ovs-vsctl --may-exist add-port br-external $external_nic
-            sudo ip addr flush $external_nic
-            sudo ip addr add $ip_info dev br-external
-            sudo ip route add $route_info dev br-external
+    local assigned_ip=`sed -n 's/OPENO_IP=//p' ${SCRIPT_DIR}/open-o.conf`
+    echo $assigned_ip
+    if [[ $assigned_ip != 'None' ]]; then
+        if [[ ! $(ifconfig -a | grep openo) ]]; then
+            sudo ip tuntap add dev openo mode tap
         fi
+        sudo ifconfig openo $assigned_ip up
     else
-        sudo ovs-vsctl add-br br-external
-        sudo ifconfig br-external up
-        sudo ovs-vsctl add-port br-external $external_nic
-        sudo ip addr flush $external_nic
-        sudo ip addr add $ip_info dev br-external
-        sudo ip route add $route_info dev br-external
+        external_nic=`ip route |grep '^default'|awk '{print $5F}'`
+        host_ip=`ifconfig $external_nic | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'`
+        sed -i "s/^\(.*OPENO_IP=\).*/\1$host_ip/g" ${SCRIPT_DIR}/open-o.conf
     fi
+}
+
+function prepare_env()
+{
+    generate_conf
+    package_prepare
+    network_prepare
 }

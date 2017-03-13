@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0
 ##############################################################################
 set -ex
+start=$(date +%s)
 export OPERA_DIR=`cd ${BASH_SOURCE[0]%/*}/;pwd`
 CONF_DIR=${OPERA_DIR}/conf
 OPENO_DIR=${OPERA_DIR}/open-o
@@ -19,53 +20,37 @@ export DEPLOY_FIRST_TIME=${DEPLOY_FIRST_TIME:-"true"}
 export DEPLOY_OPENO=${DEPLOY_OPENO:-"true"}
 export DEPLOY_JUJU=${DEPLOY_JUJU:-"true"}
 
-source ${OPERA_DIR}/prepare.sh
-generate_conf
-source ${OPERA_DIR}/conf/download.conf
-source ${WORK_DIR}/scripts/openo-vm.conf
-source ${WORK_DIR}/scripts/network.conf
+source ${OPERA_DIR}/conf/admin-openrc.sh
 
+source ${OPERA_DIR}/prepare.sh
+source ${OPERA_DIR}/conf/juju.conf
+source ${OPENO_DIR}/openo_docker.sh
 source ${UTIL_DIR}/log.sh
-source ${OPENO_DIR}/openo_vm.sh
-source ${OPERA_DIR}/command.sh
-source ${JUJU_DIR}/adapter.sh
+source ${JUJU_DIR}/command.sh
 source ${JUJU_DIR}/juju_setup.sh
 source ${JUJU_DIR}/juju_launch.sh
 source ${JUJU_DIR}/juju_connect.sh
+source ${JUJU_DIR}/vims_deploy.sh
 
 mkdir -p $WORK_DIR
 
 if [[ "$DEPLOY_FIRST_TIME" == "true" ]]; then
-    package_prepare
-    network_prepare
-    generate_compass_openrc
+    prepare_env
 fi
 
-source $WORK_DIR/admin-openrc.sh
-
-sudo sync && sudo sysctl -w vm.drop_caches=3
+source ${WORK_DIR}/scripts/open-o.conf
+source ${WORK_DIR}/scripts/application.conf
 
 if [[ "$DEPLOY_OPENO" == "true" ]]; then
-    if ! openo_download_iso; then
-        log_error "openo_download_iso failed"
-        exit 1
-    fi
-
-    if ! launch_openo_vm; then
-        log_error "launch_openo_vm failed"
-        exit 1
-    fi
-
-    if ! launch_openo_docker; then
-        log_error "launch_openo_docker failed"
+    if ! launch_openo;then
+        log_error "launch_openo failed"
         exit 1
     fi
 fi
-
-sudo sync && sudo sysctl -w vm.drop_caches=3
 
 if [[ "$DEPLOY_JUJU" == "true" ]]; then
     juju_env_prepare
+    clear_juju_vm
 
     if ! juju_prepare; then
         log_error "juju_prepare failed"
@@ -76,9 +61,15 @@ if [[ "$DEPLOY_JUJU" == "true" ]]; then
         log_error "launch_juju failed"
         exit 1
     fi
-
     connect_juju_and_openo
 fi
 
-figlet -ctf slant Open-O Installed!
+if [[ -n $APP_NAME ]]; then
+    deploy_app
+fi
+
+figlet -ctf slant Open-O Installed
+end=$(date +%s)
+runtime=$[(end-start) / 60]
+echo "Duration: $runtime mins"
 set +ex
