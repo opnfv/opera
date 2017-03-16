@@ -87,8 +87,15 @@ function openo_connect()
                                         --tosca_aria_port $COMMON_TOSCA_ARIA_PORT \
                                         --juju_client_ip $juju_client_ip \
                                         --auth_url $OS_AUTH_URL \
-                                        --ns_pkg "${CSAR_DIR}/${APP_NS_PKG}" \
-                                        --vnf_pkg "${CSAR_DIR}/${APP_VNF_PKG}"
+                                        --ns_pkg "${CSAR_DIR}/${NS_PKG}" \
+                                        --vnf_pkg "${CSAR_DIR}/${VNF_PKG}"
+}
+
+function deploy_vnf()
+{
+    python ${JUJU_DIR}/deploy_vnf.py --msb_ip $OPENO_IP:$COMMON_SERVICES_MSB_PORT \
+                                     --vnf $VNF_TYPE \
+                                     --nsdId $NSDID
 }
 
 function fix_openo_containers()

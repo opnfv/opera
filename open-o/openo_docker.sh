@@ -9,10 +9,6 @@
 ##############################################################################
 function docker_pull()
 {
-    until docker pull openoint/sdno-driver-ct-te:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
     until docker pull openoint/common-services-auth:$OPENO_VERSION
     do
         echo "Try again"
@@ -93,63 +89,7 @@ function docker_pull()
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-driver-huawei-l3vpn:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-driver-huawei-openstack:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-driver-huawei-overlay:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-driver-huawei-servicechain:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-driver-zte-sptn:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-service-brs:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-service-ipsec:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-service-l2vpn:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-service-l3vpn:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-service-mss:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-service-nslcm:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-service-overlayvpn:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-service-servicechain:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-service-vpc:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-service-vxlan:$OPENO_VERSION
+    until docker pull openoint/gso-gui-portal:$OPENO_VERSION
     do
         echo "Try again"
     done
@@ -157,18 +97,80 @@ function docker_pull()
     do
         echo "Try again"
     done
-    until docker pull openoint/sdno-monitoring:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/sdno-vsitemgr:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
-    until docker pull openoint/gso-gui-portal:$OPENO_VERSION
-    do
-        echo "Try again"
-    done
+    if [[ $ENABLE_SDNO == true ]]; then
+        until docker pull openoint/sdno-driver-ct-te:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-driver-huawei-l3vpn:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-driver-huawei-openstack:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-driver-huawei-overlay:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-driver-huawei-servicechain:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-driver-zte-sptn:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-service-brs:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-service-ipsec:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-service-l2vpn:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-service-l3vpn:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-service-mss:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-service-nslcm:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-service-overlayvpn:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-service-servicechain:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-service-vpc:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-service-vxlan:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-monitoring:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+        until docker pull openoint/sdno-vsitemgr:$OPENO_VERSION
+        do
+            echo "Try again"
+        done
+    fi
 }
 
 function docker_run()
@@ -197,26 +199,29 @@ function docker_run()
     docker run -d -e MSB_ADDR=$msb_ip -e MYSQL_ADDR=$tosca_inventory_ip:3306 --name nfvo-lcm -p $OPENO_IP:8403:8403 openoint/nfvo-lcm:$OPENO_VERSION
     docker run -d -e MSB_ADDR=$msb_ip --name nfvo-resmanagement openoint/nfvo-resmanagement:$OPENO_VERSION
     docker run -d -e MSB_ADDR=$msb_ip --name nfvo-umc openoint/nfvo-umc:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-driver-huawei-l3vpn openoint/sdno-driver-huawei-l3vpn:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-driver-huawei-openstack openoint/sdno-driver-huawei-openstack:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-driver-huawei-overlay openoint/sdno-driver-huawei-overlay:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-driver-huawei-servicechain openoint/sdno-driver-huawei-servicechain:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-driver-zte-sptn openoint/sdno-driver-zte-sptn:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-brs openoint/sdno-service-brs:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-ipsec openoint/sdno-service-ipsec:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-l2vpn openoint/sdno-service-l2vpn:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-l3vpn openoint/sdno-service-l3vpn:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-mss openoint/sdno-service-mss:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip -e MYSQL_ADDR=$tosca_inventory_ip:3306 --name sdno-service-nslcm openoint/sdno-service-nslcm:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-overlayvpn openoint/sdno-service-overlayvpn:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-servicechain openoint/sdno-service-servicechain:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-vpc openoint/sdno-service-vpc:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-vxlan openoint/sdno-service-vxlan:$OPENO_VERSION
     docker run -d -e MSB_ADDR=$msb_ip --name common-tosca-aria -p $OPENO_IP:$COMMON_TOSCA_ARIA_PORT:8204 openoint/common-tosca-aria:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-driver-ct-te openoint/sdno-driver-ct-te:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-monitoring openoint/sdno-monitoring:$OPENO_VERSION
-    docker run -d -e MSB_ADDR=$msb_ip --name sdno-vsitemgr openoint/sdno-vsitemgr:$OPENO_VERSION
     docker run -d -e MSB_ADDR=$msb_ip --name gso-gui-portal openoint/gso-gui-portal:$OPENO_VERSION
+
+    if [[ $ENABLE_SDNO == true ]]; then
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-driver-huawei-l3vpn openoint/sdno-driver-huawei-l3vpn:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-driver-huawei-openstack openoint/sdno-driver-huawei-openstack:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-driver-huawei-overlay openoint/sdno-driver-huawei-overlay:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-driver-huawei-servicechain openoint/sdno-driver-huawei-servicechain:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-driver-zte-sptn openoint/sdno-driver-zte-sptn:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-brs openoint/sdno-service-brs:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-ipsec openoint/sdno-service-ipsec:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-l2vpn openoint/sdno-service-l2vpn:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-l3vpn openoint/sdno-service-l3vpn:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-mss openoint/sdno-service-mss:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip -e MYSQL_ADDR=$tosca_inventory_ip:3306 --name sdno-service-nslcm openoint/sdno-service-nslcm:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-overlayvpn openoint/sdno-service-overlayvpn:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-servicechain openoint/sdno-service-servicechain:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-vpc openoint/sdno-service-vpc:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-service-vxlan openoint/sdno-service-vxlan:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-driver-ct-te openoint/sdno-driver-ct-te:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-monitoring openoint/sdno-monitoring:$OPENO_VERSION
+        docker run -d -e MSB_ADDR=$msb_ip --name sdno-vsitemgr openoint/sdno-vsitemgr:$OPENO_VERSION
+    fi
 }
 
 function clean() {
@@ -231,8 +236,6 @@ function launch_openo() {
     clean
     docker_run
 
-    if [[ $(docker ps -q | grep openoint | wc -l) == 40 ]];then
-        echo -e "\n\033[32mOpen-O launch success\033[0m\n"
-    fi
+    echo -e "\n\033[32mOpen-O launch success\033[0m\n"
 }
 

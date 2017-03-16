@@ -14,7 +14,7 @@ function generate_conf()
     rm -rf ${SCRIPT_DIR}
     mkdir -p ${SCRIPT_DIR}
     python ${OPERA_DIR}/process_conf.py ${CONF_DIR}/open-o.yml \
-                                        ${CONF_DIR}/application.yml
+                                        ${CONF_DIR}/vnf.yml
 }
 
 function package_prepare()

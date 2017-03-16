@@ -14,6 +14,7 @@ import os
 import time
 import requests
 import json
+from datetime import datetime
 from pprint import pprint
 
 
@@ -136,15 +137,6 @@ def add_openo_vnfm(msb_ip, juju_client_ip):
     request_post(vnfm_url, data, headers)
 
 
-def upload_csar(msb_ip, package):
-    csar_url = 'http://' + msb_ip + '/openoapi/catalog/v1/csars'
-    files = {'file': open(package, 'rb')}
-    res = requests.post(csar_url, files=files)
-    if res.status_code != 200:
-        pprint(res.json())
-        raise Exception('Error with uploading csar package: %s' % package)
-
-
 def delete_csars(msb_ip):
     csar_url = 'http://' + msb_ip + '/openoapi/catalog/v1/csars/'
     csars = request_get(csar_url)
@@ -152,6 +144,24 @@ def delete_csars(msb_ip):
         csarId = csar["csarId"]
         request_delete(csar_url + csarId)
         pprint("csar %s is deleted" % csarId)
+
+
+def upload_csar(msb_ip, package):
+    csar_url = 'http://' + msb_ip + '/openoapi/catalog/v1/csars'
+    files = {'file': open(package, 'rb')}
+    res = requests.post(csar_url, files=files)
+    if res.status_code != 200:
+        retry = 5
+        while retry != 0:
+            delete_csars(msb_ip)
+            retry_res = requests.post(csar_url, files=files)
+            if retry_res.status_code == 200:
+                break
+            else:
+                pprint(retry_res.json())
+                retry -= 1
+        if retry == 0:
+            raise Exception('Error with uploading csar package: %s' % package)
 
 
 def package_onboard(msb_ip):
@@ -184,11 +194,11 @@ def package_onboard(msb_ip):
             raise RaiseError("csar onboard fail")
 
 
-def create_service(msb_ip, ns_name, description, nsdId):
+def create_service(msb_ip, ns_name, description, nsdId='ns_cw_2016'):
     service_url = 'http://' + msb_ip + '/openoapi/servicegateway/v1/services'
     headers = {'Content-Type': 'application/json'}
     data1 = {"nsdId": nsdId,
-            "nsName": ns_name,
+            "nsName": "{0}{1}".format(ns_name, datetime.now().strftime('%Y%m%d%H%M%S')),
             "description": description,
             "gatewayUri":"/openoapi/nslcm/v1/ns"}
     vimId = get_vim_id(msb_ip, "openstack")

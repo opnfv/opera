@@ -6,7 +6,8 @@
 # which accompanies this distribution, and is available at
 # http://www.apache.org/licenses/LICENSE-2.0
 ##############################################################################
-application:
-  - name: clearwater
+vIMS:
+  - type: clearwater
     ns_pkg: pop_ns_juju.csar
     vnf_pkg: JUJU_clearwater.csar
+    nsdId: ns_cw_2016

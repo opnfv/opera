@@ -39,7 +39,7 @@ if [[ "$DEPLOY_FIRST_TIME" == "true" ]]; then
 fi
 
 source ${WORK_DIR}/scripts/open-o.conf
-source ${WORK_DIR}/scripts/application.conf
+source ${WORK_DIR}/scripts/vnf.conf
 
 if [[ "$DEPLOY_OPENO" == "true" ]]; then
     if ! launch_openo;then
@@ -64,8 +64,8 @@ if [[ "$DEPLOY_JUJU" == "true" ]]; then
     connect_juju_and_openo
 fi
 
-if [[ -n $APP_NAME ]]; then
-    deploy_app
+if [[ -n $VNF_TYPE ]]; then
+    deploy_vnf
 fi
 
 figlet -ctf slant Open-O Installed
