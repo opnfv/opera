@@ -6,7 +6,17 @@
 # which accompanies this distribution, and is available at
 # http://www.apache.org/licenses/LICENSE-2.0
 ##############################################################################
-application:
-  - name: clearwater
-    ns_pkg: pop_ns_juju.csar
-    vnf_pkg: JUJU_clearwater.csar
+
+from setuptools import setup, find_packages
+
+
+setup(
+    name="opera",
+    version="master",
+    packages=find_packages(),
+    include_package_data=True,
+    package_data={
+    },
+    url="https://www.opnfv.org",
+    install_requires=["requests==2.9.1"]
+)
