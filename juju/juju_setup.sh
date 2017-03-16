@@ -9,6 +9,7 @@
 ##############################################################################
 
 IMG_DIR=${WORK_DIR}/img
+CSAR_DIR=${WORK_DIR}/csar
 
 function juju_env_prepare()
 {
@@ -30,20 +31,40 @@ function juju_download_img()
     fi
 }
 
+function juju_download_csar()
+{
+    if [ ! -e ${CSAR_DIR}/${1##*/} ];then
+        wget -O ${CSAR_DIR}/${1##*/} $1
+    fi
+}
+
 function juju_prepare()
 {
     log_info "juju_prepare enter"
 
     mkdir -p $IMG_DIR
-
     for((i=0;i<${#JUJU_IMG_NAME[@]};i++))
     do
         juju_download_img ${JUJU_IMG_URL[i]}
         if [[ ! $(glance image-list | grep ${JUJU_IMG_NAME[i]}) ]]; then
             glance image-create --name=${JUJU_IMG_NAME[i]} \
-                            --disk-format qcow2 --container-format=bare \
-                            --visibility=public --file ${IMG_DIR}/${JUJU_IMG_URL[i]##*/}
+                --disk-format qcow2 --container-format=bare \
+                --visibility=public --file ${IMG_DIR}/${JUJU_IMG_URL[i]##*/}
         fi
+    done
+
+    wget -nc -O $IMG_DIR/$JUJU_VM_IMG $JUJU_VM_IMG_URL
+    if [[ $(glance image-list | grep $JUJU_VM_IMG) ]]; then
+        openstack image delete $JUJU_VM_IMG
+    fi
+    glance image-create --name=$JUJU_VM_IMG \
+        --disk-format qcow2 --container-format=bare \
+        --visibility=public --file $IMG_DIR/$JUJU_VM_IMG
+
+    mkdir -p $CSAR_DIR
+    for((i=0;i<${#CSAR_NAME[@]};i++))
+    do
+        juju_download_csar ${CSAR_URL[i]}
     done
 
     if [[ ! $(neutron net-list | grep juju-net) ]]; then
@@ -93,16 +114,17 @@ function juju_prepare()
                                            --remote-ip-prefix 0.0.0.0/0 $default_secgroup_id
     fi
 
-    if [ ! -f /root/.ssh/id_rsa.pub ]; then
-        ssh-keygen -q -t rsa -f /root/.ssh/id_rsa -N ""
-    fi
+    echo -e 'n\n'|ssh-keygen -q -t rsa -N "" -f /root/.ssh/id_rsa 1>/dev/null
 
-    openstack keypair list | grep jump-key || openstack keypair create --public-key \
-                                              /root/.ssh/id_rsa.pub jump-key
+    openstack keypair delete jump-key | true
+    openstack keypair create --public-key /root/.ssh/id_rsa.pub jump-key
 
     openstack flavor show m1.tiny   || openstack flavor create --ram 512 --disk 5 --vcpus 1 --public m1.tiny
     openstack flavor show m1.small  || openstack flavor create --ram 1024 --disk 10 --vcpus 1 --public m1.small
     openstack flavor show m1.medium || openstack flavor create --ram 2048 --disk 10 --vcpus 2 --public m1.medium
     openstack flavor show m1.large  || openstack flavor create --ram 3072 --disk 10 --vcpus 2 --public m1.large
     openstack flavor show m1.xlarge || openstack flavor create --ram 8096 --disk 30 --vcpus 4 --public m1.xlarge
+
+    openstack quota set --instances 20 admin
+    openstack quota set --core 30 admin
 }

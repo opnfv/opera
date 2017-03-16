@@ -7,7 +7,25 @@
 # which accompanies this distribution, and is available at
 # http://www.apache.org/licenses/LICENSE-2.0
 ##############################################################################
-mysql -uroot -p'rootpass' << EOF
-GRANT ALL PRIVILEGES ON *.*  TO 'root'@'%' IDENTIFIED BY 'rootpass' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-EOF
+
+function exec_cmd_on_client()
+{
+    local ssh_args="-o StrictHostKeyChecking=no"
+
+    if [ ! $juju_client_ip ]; then
+        log_error "juju-client ip not found"
+        exit 1
+    fi
+    ssh $ssh_args ubuntu@$juju_client_ip "$@"
+}
+
+function scp_to_client()
+{
+    local ssh_args="-o StrictHostKeyChecking=no"
+
+    if [ ! $juju_client_ip ]; then
+        log_error "juju-client ip not found"
+        exit 1
+    fi
+    scp $ssh_args $1 ubuntu@$juju_client_ip:$2
+}
