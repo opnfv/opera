@@ -15,12 +15,14 @@ from openo_connect import create_service
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--application", action='store', default='', help="app name")
     parser.add_argument("--msb_ip", action='store', help="common_services_msb ip")
+    parser.add_argument("--vnf", action='store', default='', help="vnf type")
+    parser.add_argument("--nsdId", action='store', default='', help="vnf nsdId")
 
     args = parser.parse_args()
-    application = args.application
     msb_ip = args.msb_ip
+    vnf = args.vnf
+    nsdId = args.nsdId
 
-    if application == 'clearwater':
-        create_service(msb_ip, application, 'vIMS', 'ns_cw_2016')
+    if vnf == 'clearwater':
+        create_service(msb_ip, vnf, vnf, nsdId)

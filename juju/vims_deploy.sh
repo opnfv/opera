@@ -10,9 +10,19 @@
 
 juju_client_ip=$(openstack server list | grep juju-client-vm | awk '{print $9}')
 
-function deploy_app() {
-    python ${JUJU_DIR}/deploy_application.py --msb_ip $OPENO_IP:$COMMON_SERVICES_MSB_PORT \
-                                             --application $APP_NAME
+function exec_cmd_on_client()
+{
+    local ssh_args="-o StrictHostKeyChecking=no"
+
+    if [ ! $juju_client_ip ]; then
+        log_error "juju-client ip not found"
+        exit 1
+    fi
+    ssh $ssh_args ubuntu@$juju_client_ip "$@"
+}
+
+function log_error() {
+    echo -e "\033[31m$*\033[0m"
 }
 
 function check_clearwater() {
