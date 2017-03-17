@@ -13,6 +13,7 @@ import sys
 import os
 import time
 import requests
+import re
 import json
 from datetime import datetime
 from pprint import pprint
@@ -84,6 +85,19 @@ def get_vim_id(msb_ip, vim_type):
             vimId.append(i['vimId'])
 
     return vimId
+
+
+def get_vnfm_ip(msb_ip):
+    vnfm_url = 'http://' + msb_ip + '/openoapi/extsys/v1/vnfms/'
+    get_vnfm = request_get(vnfm_url)
+    vnfm_url = ''
+    for i in get_vnfm:
+        if i["type"] == "jujuvnfm":
+            vnfm_url = i["url"]
+            break
+    ip = re.compile("\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}")
+    vnfm_ip = re.findall(ip, vnfm_url)[0]
+    return vnfm_ip
 
 
 def add_openo_vim(msb_ip, auth_url):
