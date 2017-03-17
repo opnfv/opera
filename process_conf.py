@@ -31,12 +31,11 @@ def generate_app_conf(openo_config, vnf_config, scripts_dir):
     """generate opera/work/scripts_dir/vnf.conf"""
     with open(scripts_dir + "/vnf.conf", "w") as fd:
         for i in vnf_config["vIMS"]:
+            fd.write('{0}={1}\n'.format('NS_PKG', i["ns_pkg"]))
+            fd.write('{0}={1}\n'.format('VNF_PKG', i["vnf_pkg"]))
             if i["type"] == openo_config["vnf_type"]:
                 fd.write('{0}={1}\n'.format('VNF_TYPE', i["type"]))
-                fd.write('{0}={1}\n'.format('NS_PKG', i["ns_pkg"]))
-                fd.write('{0}={1}\n'.format('VNF_PKG', i["vnf_pkg"]))
                 fd.write('{0}={1}'.format('NSDID', i["nsdId"]))
-            break
 
 
 if __name__ == "__main__":
