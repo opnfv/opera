@@ -165,9 +165,11 @@ def upload_csar(msb_ip, package):
     files = {'file': open(package, 'rb')}
     res = requests.post(csar_url, files=files)
     if res.status_code != 200:
-        retry = 5
+        retry = 10
         while retry != 0:
+            time.sleep(5)
             delete_csars(msb_ip)
+            time.sleep(5)
             retry_res = requests.post(csar_url, files=files)
             if retry_res.status_code == 200:
                 break
