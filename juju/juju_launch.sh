@@ -78,7 +78,8 @@ function juju_client_prepare()
             $OS_REGION_NAME:
                 endpoint: $OS_AUTH_URL' > clouds.yaml"
 
-    local cmd1="juju add-cloud openstack clouds.yaml --replace"
+    local cmd1="iuju remove-cloud openstack; \
+                juju add-cloud openstack clouds.yaml --replace"
     exec_cmd_on_client $cmd1
 
     if [[ ! $(exec_cmd_on_client "juju list-clouds | grep openstack") ]]; then
