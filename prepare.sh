@@ -53,7 +53,7 @@ function network_prepare()
 
 function prepare_env()
 {
-    generate_conf
     package_prepare
+    generate_conf
     network_prepare
 }
