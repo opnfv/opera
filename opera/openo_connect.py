@@ -95,7 +95,11 @@ def get_vnfm_ip(msb_ip):
         if i["type"] == "jujuvnfm":
             vnfm_url = i["url"]
             break
+
     ip = re.compile("\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}")
+    if len(re.findall(ip, vnfm_url)) == 0:
+        raise RaiseError("vnfm ip not find")
+
     vnfm_ip = re.findall(ip, vnfm_url)[0]
     return vnfm_ip
 
