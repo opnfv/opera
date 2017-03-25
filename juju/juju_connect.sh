@@ -78,6 +78,7 @@ function start_tomcat()
 
     docker stop nfvo-driver-vnfm-juju
     docker start nfvo-driver-vnfm-juju
+    sleep 10
 }
 
 function openo_connect()
@@ -114,6 +115,6 @@ function connect_juju_and_openo()
 
     sync_juju_driver_file
     start_tomcat
-#    fix_openo_containers
+    fix_openo_containers
     openo_connect
 }
