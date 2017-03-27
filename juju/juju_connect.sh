@@ -10,7 +10,7 @@
 
 function connect_prepare()
 {
-    apt-get install -y rsync
+    sudo apt-get install -y rsync
 
     local cmd="tar -zxvf apache-tomcat-8.5.9.tar.gz; \
                sudo rm -rf tomcat8 csar; \

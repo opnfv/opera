@@ -30,7 +30,7 @@ source ${JUJU_DIR}/command.sh
 source ${JUJU_DIR}/juju_setup.sh
 source ${JUJU_DIR}/juju_launch.sh
 source ${JUJU_DIR}/juju_connect.sh
-source ${JUJU_DIR}/vims_deploy.sh
+#source ${JUJU_DIR}/vims_deploy.sh
 
 mkdir -p $WORK_DIR
 
