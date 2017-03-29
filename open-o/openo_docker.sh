@@ -226,6 +226,8 @@ function docker_run()
 
 function docker_clean() {
     sudo docker ps -a | grep openoint | awk '{print $1}' | xargs sudo docker rm -f || true
+    # FIXME: remove this when nfvo-driver-vnfm-juju has a stable version
+    sudo docker ps -a | grep nfvo-driver-vnfm-juju | awk '{print $1}' | xargs sudo docker rm -f || true
 }
 
 
