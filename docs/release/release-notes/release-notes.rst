@@ -1,22 +1,25 @@
-.. This work is licensed under a Creative Commons Attribution 4.0 International Licence.
+.. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. http://creativecommons.org/licenses/by/4.0
-.. (c) by Yingjun Li (HUAWEI)
+.. (c) Yingjun Li (HUAWEI) and Harry Huang (HUAWEI)
+
+==========================
+OPNFV Opera Release Notes
+==========================
+
+This document describes release notes of OPNFV Danube Release of Opera
 
 Abstract
 ========
 
-This document describes how to install Open-O in an OpenStack deployed environment
-using Opera project.
+Opera project is aimed to deploy a working Open-O environment.
 
-Version history
-===============
+Release Data
+============
 
 +--------------------+--------------------+--------------------+---------------------------+
 | **Date**           | **Ver.**           | **Author**         | **Comment**               |
 |                    |                    |                    |                           |
 +--------------------+--------------------+--------------------+---------------------------+
-| 2017-02-16         | 0.0.1              | Harry Huang        | First draft               |
+| 2017-02-24         | 0.0.1              | Harry Huang        | First draft               |
 |                    |                    | (HUAWEI)           |                           |
 +--------------------+--------------------+--------------------+---------------------------+
-
-
