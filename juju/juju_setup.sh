@@ -21,7 +21,7 @@ function juju_env_prepare()
     virtualenv ${WORK_DIR}/venv
 
     source ${WORK_DIR}/venv/bin/activate
-    pip install --upgrade python-openstackclient python-neutronclient
+    pip install -r ${OPERA_DIR}/requirements.txt
 }
 
 function juju_download_img()
