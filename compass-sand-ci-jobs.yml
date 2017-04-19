@@ -1,0 +1,303 @@
+- project:
+
+    name: compass-ci
+
+    installer: 'compass'
+
+    project: 'compass4nfv'
+
+    master: &master
+        stream: master
+        branch: '{stream}'
+        gs-pathname: ''
+        disabled: false
+    colorado: &colorado.3.0
+        stream: colorado.3.0
+        branch: 'stable/{stream}'
+        gs-pathname: '/{stream}'
+        disabled: false
+#--------------------------------
+# POD, INSTALLER, AND BRANCH MAPPING
+#--------------------------------
+#        CI PODs
+#--------------------------------
+    pod:
+        - baremetal:
+            slave-label: compass-baremetal
+            os-version: 'xenial'
+            <<: *master
+
+        - baremetal:
+            slave-label: compass-baremetal
+            os-version: 'xenial'
+            <<: *colorado.3.0
+
+#--------------------------------
+#        master
+#--------------------------------
+        - baremetal-centos:
+            slave-label: 'huawei-pod6'
+            os-version: 'centos7'
+            <<: *master
+
+    scenario:
+        - 'os-nosdn-nofeature-ha':
+            disabled: false
+            auto-trigger-name: 'compass-{scenario}-{pod}-{stream}-trigger'
+        - 'os-odl_l2-nofeature-ha':
+            disabled: false
+            auto-trigger-name: 'compass-{scenario}-{pod}-{stream}-trigger'
+        - 'os-odl_l3-nofeature-ha':
+            disabled: false
+            auto-trigger-name: 'compass-{scenario}-{pod}-{stream}-trigger'
+        - 'os-onos-nofeature-ha':
+            disabled: false
+            auto-trigger-name: 'compass-{scenario}-{pod}-{stream}-trigger'
+        - 'os-ocl-nofeature-ha':
+            disabled: false
+            auto-trigger-name: 'compass-{scenario}-{pod}-{stream}-trigger'
+        - 'os-onos-sfc-ha':
+            disabled: false
+            auto-trigger-name: 'compass-{scenario}-{pod}-{stream}-trigger'
+        - 'os-odl_l2-moon-ha':
+            disabled: false
+            auto-trigger-name: 'compass-{scenario}-{pod}-{stream}-trigger'
+        - 'os-nosdn-kvm-ha':
+            disabled: false
+            auto-trigger-name: 'compass-{scenario}-{pod}-{stream}-trigger'
+        - 'os-nosdn-openo-ha':
+            disabled: false
+            auto-trigger-name: 'compass-{scenario}-{pod}-{stream}-trigger'
+
+
+    jobs:
+        - 'compass-{scenario}-{pod}-daily-{stream}'
+        - 'compass-deploy-{pod}-daily-{stream}'
+
+########################
+# job templates
+########################
+- job-template:
+    name: 'compass-{scenario}-{pod}-daily-{stream}'
+
+    disabled: '{obj:disabled}'
+
+    concurrent: true
+
+    properties:
+        - logrotate-default
+        - throttle:
+            enabled: true
+            max-per-node: 1
+            option: 'project'
+        - build-blocker:
+            use-build-blocker: true
+            blocking-jobs:
+                - 'compass-os-.*?-{pod}-daily-.*?'
+                - 'compass-os-.*?-baremetal-daily-.*?'
+                - 'compass-verify-[^-]*-[^-]*'
+            block-level: 'NODE'
+
+    wrappers:
+        - build-name:
+            name: '$BUILD_NUMBER - Scenario: $DEPLOY_SCENARIO'
+
+    parameters:
+        - project-parameter:
+            project: '{project}'
+            branch: '{branch}'
+        - compass-ci-parameter:
+            installer: '{installer}'
+            gs-pathname: '{gs-pathname}'
+        - string:
+            name: DEPLOY_SCENARIO
+            default: '{scenario}'
+        - '{slave-label}-defaults'
+        - '{installer}-defaults'
+
+    triggers:
+        - '{auto-trigger-name}'
+
+    builders:
+        - description-setter:
+            description: "POD: $NODE_NAME"
+        - trigger-builds:
+            - project: 'compass-deploy-{pod}-daily-{stream}'
+              current-parameters: true
+              predefined-parameters: |
+                DEPLOY_SCENARIO={scenario}
+                COMPASS_OS_VERSION={os-version}
+              same-node: true
+              block: true
+        - trigger-builds:
+            - project: 'functest-compass-{pod}-daily-{stream}'
+              current-parameters: false
+              predefined-parameters:
+                DEPLOY_SCENARIO={scenario}
+              same-node: true
+              block: true
+              block-thresholds:
+                build-step-failure-threshold: 'never'
+                failure-threshold: 'never'
+                unstable-threshold: 'FAILURE'
+        - trigger-builds:
+            - project: 'yardstick-compass-{pod}-daily-{stream}'
+              current-parameters: false
+              predefined-parameters:
+                DEPLOY_SCENARIO={scenario}
+              block: true
+              same-node: true
+              block-thresholds:
+                build-step-failure-threshold: 'never'
+                failure-threshold: 'never'
+                unstable-threshold: 'FAILURE'
+        
+
+- job-template:
+    name: 'compass-deploy-{pod}-daily-{stream}'
+
+    disabled: false
+
+    concurrent: true
+
+    properties:
+        - logrotate-default
+        - throttle:
+            enabled: true
+            max-per-node: 1
+            option: 'project'
+        - build-blocker:
+            use-build-blocker: true
+            blocking-jobs:
+                - 'compass-deploy-{pod}-daily-.*?'
+                - 'compass-verify-deploy-.*?'
+            block-level: 'NODE'
+
+    wrappers:
+        - build-name:
+            name: '$BUILD_NUMBER - Scenario: $DEPLOY_SCENARIO'
+        - timeout:
+            timeout: 120
+            abort: true
+
+    parameters:
+        - project-parameter:
+            project: '{project}'
+            branch: '{branch}'
+        - compass-ci-parameter:
+            installer: '{installer}'
+            gs-pathname: '{gs-pathname}'
+        - '{slave-label}-defaults'
+        - '{installer}-defaults'
+
+    scm:
+        - git-scm
+
+    wrappers:
+        - build-name:
+            name: '$BUILD_NUMBER - Scenario: $DEPLOY_SCENARIO'
+
+
+    builders:
+        - description-setter:
+            description: "POD: $NODE_NAME"
+        - shell:
+            !include-raw-escape: ./compass-download-artifact.sh
+        - shell:
+            !include-raw-escape: ./compass-deploy.sh
+
+########################
+# parameter macros
+########################
+- parameter:
+    name: compass-ci-parameter
+    parameters:
+        - string:
+            name: BUILD_DIRECTORY
+            default: $WORKSPACE/build_output
+            description: "Directory where the build artifact will be located upon the completion of the build."
+        - string:
+            name: GS_URL
+            default: '$GS_BASE{gs-pathname}'
+            description: "URL to Google Storage."
+        - choice:
+            name: COMPASS_OPENSTACK_VERSION
+            choices:
+                - 'newton'
+
+########################
+# trigger macros
+########################
+- trigger:
+    name: 'compass-os-nosdn-nofeature-ha-baremetal-centos-master-trigger'
+    triggers:
+        - timed: '0 19 * * *'
+- trigger:
+    name: 'compass-os-nosdn-openo-ha-baremetal-centos-master-trigger'
+    triggers:
+        - timed: ''
+- trigger:
+    name: 'compass-os-odl_l2-nofeature-ha-baremetal-centos-master-trigger'
+    triggers:
+        - timed: '0 23 * * *'
+- trigger:
+    name: 'compass-os-odl_l3-nofeature-ha-baremetal-centos-master-trigger'
+    triggers:
+        - timed: '0 15 * * *'
+- trigger:
+    name: 'compass-os-onos-nofeature-ha-baremetal-centos-master-trigger'
+    triggers:
+        - timed: '0 7 * * *'
+- trigger:
+    name: 'compass-os-ocl-nofeature-ha-baremetal-centos-master-trigger'
+    triggers:
+        - timed: '0 11 * * *'
+- trigger:
+    name: 'compass-os-onos-sfc-ha-baremetal-centos-master-trigger'
+    triggers:
+        - timed: '0 3 * * *'
+- trigger:
+    name: 'compass-os-odl_l2-moon-ha-baremetal-centos-master-trigger'
+    triggers:
+        - timed: ''
+- trigger:
+    name: 'compass-os-nosdn-kvm-ha-baremetal-centos-master-trigger'
+    triggers:
+        - timed: ''
+
+- trigger:
+    name: 'compass-os-nosdn-nofeature-ha-baremetal-master-trigger'
+    triggers:
+        - timed: '0 2 * * *'
+- trigger:
+    name: 'compass-os-nosdn-openo-ha-baremetal-master-trigger'
+    triggers:
+        - timed: '0 3 * * *'
+- trigger:
+    name: 'compass-os-odl_l2-nofeature-ha-baremetal-master-trigger'
+    triggers:
+        - timed: '0 22 * * *'
+- trigger:
+    name: 'compass-os-odl_l3-nofeature-ha-baremetal-master-trigger'
+    triggers:
+        - timed: '0 18 * * *'
+- trigger:
+    name: 'compass-os-onos-nofeature-ha-baremetal-master-trigger'
+    triggers:
+        - timed: '0 14 * * *'
+- trigger:
+    name: 'compass-os-ocl-nofeature-ha-baremetal-master-trigger'
+    triggers:
+        - timed: '0 10 * * *'
+- trigger:
+    name: 'compass-os-onos-sfc-ha-baremetal-master-trigger'
+    triggers:
+        - timed: '0 6 * * *'
+- trigger:
+    name: 'compass-os-odl_l2-moon-ha-baremetal-master-trigger'
+    triggers:
+        - timed: ''
+- trigger:
+    name: 'compass-os-nosdn-kvm-ha-baremetal-master-trigger'
+    triggers:
+        - timed: ''
