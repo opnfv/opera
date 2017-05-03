@@ -164,21 +164,30 @@ def delete_csars(msb_ip):
         pprint("csar %s is deleted" % csarId)
 
 
-def upload_csar(msb_ip, package):
+def upload_csar(msb_ip, vnf_pkg, ns_pkg):
     csar_url = 'http://' + msb_ip + '/openoapi/catalog/v1/csars'
-    files = {'file': open(package, 'rb')}
-    res = requests.post(csar_url, files=files)
-    if res.status_code != 200:
+    vnf_file = {'file': open(vnf_pkg, 'rb')}
+    ns_file = {'file': open(ns_pkg, 'rb')}
+    res1 = requests.post(csar_url, files=vnf_file)
+    time.sleep(10)
+    res2 = requests.post(csar_url, files=ns_file)
+    if res1.status_code != 200 or res2.status_code != 200:
         retry = 10
         while retry != 0:
             time.sleep(5)
             delete_csars(msb_ip)
+            os.system('docker exec common-tosca-catalog bash -c \
+                      "/service/tomcat/bin/catalina.sh stop; \
+                       /service/tomcat/bin/catalina.sh start"')
             time.sleep(5)
-            retry_res = requests.post(csar_url, files=files)
-            if retry_res.status_code == 200:
+            retry1 = requests.post(csar_url, files=vnf_file)
+            time.sleep(10)
+            retry2 = requests.post(csar_url, files=ns_file)
+            if retry1.status_code == 200 and retry2.status_code == 200:
                 break
             else:
-                pprint(retry_res.json())
+                pprint(retry1.json())
+                pprint(retry2.json())
                 retry -= 1
         if retry == 0:
             raise Exception('Error with uploading csar package: %s' % package)
@@ -258,7 +267,6 @@ if __name__ == "__main__":
     add_openo_vnfm(msb_ip, juju_client_ip)
 
     delete_csars(msb_ip)
-    upload_csar(msb_ip, vnf_pkg)
-    upload_csar(msb_ip, ns_pkg)
+    upload_csar(msb_ip, vnf_pkg, ns_pkg)
     package_onboard(msb_ip)
 
