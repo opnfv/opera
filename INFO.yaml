@@ -1,0 +1,52 @@
+---
+project: 'OPNFV MANO Requirement for Integration'
+project_creation_date: '2016-08-11'
+project_category: ''
+lifecycle_state: ''
+project_lead: &opnfv_opera_ptl
+    name: 'Yingjun Li'
+    email: 'yingjun.li@huawei.com'
+    id: 'yingjunli'
+    company: 'huawei.com'
+    timezone: 'Unknown'
+primary_contact: *opnfv_opera_ptl
+issue_tracking:
+    type: 'jira'
+    url: 'https://jira.opnfv.org/projects/[opera]'
+    key: '[opera]'
+mailing_list:
+    type: 'mailman2'
+    url: 'opnfv-tech-discuss@lists.opnfv.org'
+    tag: '[opera]'
+realtime_discussion:
+    type: irc
+    server: 'freenode.net'
+    channel: '#opnfv-opera'
+meetings:
+    - type: 'gotomeeting+irc'
+      agenda:  # eg: 'https://wiki.opnfv.org/display/'
+      url:  # eg: 'https://global.gotomeeting.com/join/819733085'
+      server: 'freenode.net'
+      channel: '#opnfv-meeting'
+      repeats: 'weekly'
+      time:  # eg: '16:00 UTC'
+repositories:
+    - 'opera'
+committers:
+    - <<: *opnfv_opera_ptl
+    - name: 'Zhaoxing Meng'
+      email: 'meng.zhaoxing1@zte.com.cn'
+      company: 'zte.com.cn'
+      id: 'Zhaoxing'
+    - name: 'HuabingZhao'
+      email: 'zhao.huabing@zte.com.cn'
+      company: 'zte.com.cn'
+      id: 'HuabingZhao'
+    - name: 'Harry Huang'
+      email: 'huangxiangyu5@huawei.com'
+      company: 'huawei.com'
+      id: 'huangxiangyu'
+tsc:
+    # yamllint disable rule:line-length
+    approval: 'http//meetbot.opnfv.org/meetings/opnfv-meeting/2016/opnfv-meeting.2016-08-09-13.59.html'
+    # yamllint enable rule:line-length
