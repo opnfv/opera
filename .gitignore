@@ -1,2 +1,4 @@
 *.pyc
 /work
+.tox
+docs/_build/*
